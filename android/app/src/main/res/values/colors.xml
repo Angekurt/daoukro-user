@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Couleur splash screen — vert primaire Daoukro Digital -->
+    <color name="splash_background">#1B5E20</color>
+</resources>
