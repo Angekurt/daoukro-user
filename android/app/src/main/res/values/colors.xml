@@ -2,4 +2,5 @@
 <resources>
     <!-- Couleur splash screen — vert primaire Daoukro Digital -->
     <color name="splash_background">#1B5E20</color>
+	<color name="ic_launcher_background">#145217</color>
 </resources>
