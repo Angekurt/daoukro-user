@@ -53,3 +53,6 @@ app.*.map.json
 /android/.gradle/
 /android/gradle/wrapper/dists/
 .gradle/
+
+# Config locale de l'outil Claude Code — jamais versionnee (peut contenir des secrets de session)
+.claude/
