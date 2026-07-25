@@ -41,6 +41,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     _charger();
   }
 
+  Future<void> _supprimerUne(int index) async {
+    await NotificationService.instance.supprimerUne(index);
+    _charger();
+  }
+
   void _ouvrirNotification(BuildContext context, Map<String, dynamic> n, int index) {
     _marquerLue(index);
     final data = Map<String, dynamic>.from(n['data'] ?? {});
@@ -188,7 +193,18 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 final data = Map<String, dynamic>.from(n['data'] ?? {});
                 final lue = n['lue'] == true;
                 final couleur = _couleur(data);
-                return GestureDetector(
+                return Dismissible(
+                  key: ValueKey('${n['date']}_${n['titre']}_$i'),
+                  direction: DismissDirection.endToStart,
+                  onDismissed: (_) => _supprimerUne(i),
+                  background: Container(
+                    alignment: Alignment.centerRight,
+                    padding: const EdgeInsets.only(right: 20),
+                    margin: const EdgeInsets.only(bottom: 0),
+                    decoration: BoxDecoration(color: AppColors.danger, borderRadius: BorderRadius.circular(14)),
+                    child: const Icon(Icons.delete_outline, color: AppColors.white),
+                  ),
+                  child: GestureDetector(
                   onTap: () => _ouvrirNotification(context, n, i),
                   child: Container(
                     padding: const EdgeInsets.all(14),
@@ -223,6 +239,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         ]),
                       ])),
                     ]),
+                  ),
                   ),
                 ).animate().fadeIn(duration: 300.ms, delay: Duration(milliseconds: i * 40));
               },

@@ -1,15 +1,20 @@
 import 'dart:convert';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:dio/dio.dart';
 import '../constants/app_constants.dart';
 
-// Handler de fond — doit être une fonction top-level
+// Handler de fond — doit être une fonction top-level. Tourne dans un isolate
+// séparé (app fermée ou en arrière-plan) : Hive n'y est pas déjà initialisé
+// par main(), il faut le faire ici avant de pouvoir sauvegarder la notif.
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  WidgetsFlutterBinding.ensureInitialized();
   await NotificationService.instance.showLocalNotification(message);
+  await NotificationService.instance.sauvegarderDepuisArrierePlan(message);
 }
 
 class NotificationService {
@@ -91,6 +96,16 @@ class NotificationService {
     );
   }
 
+  // Appelé depuis l'isolate de fond : Hive n'y est jamais déjà ouvert
+  // (contrairement à l'isolate principal, initialisé une fois dans main()).
+  Future<void> sauvegarderDepuisArrierePlan(RemoteMessage message) async {
+    if (!Hive.isBoxOpen(_boxNotifs)) {
+      await Hive.initFlutter();
+      await Hive.openBox(_boxNotifs);
+    }
+    _sauvegarderNotification(message);
+  }
+
   void _sauvegarderNotification(RemoteMessage message) {
     if (!Hive.isBoxOpen(_boxNotifs)) return;
     final box = Hive.box(_boxNotifs);
@@ -150,5 +165,15 @@ class NotificationService {
     if (!Hive.isBoxOpen(_boxNotifs)) return;
     final box = Hive.box(_boxNotifs);
     await box.put('liste', []);
+  }
+
+  Future<void> supprimerUne(int index) async {
+    if (!Hive.isBoxOpen(_boxNotifs)) return;
+    final box = Hive.box(_boxNotifs);
+    final liste = getNotifications();
+    if (index < liste.length) {
+      liste.removeAt(index);
+      await box.put('liste', liste);
+    }
   }
 }
