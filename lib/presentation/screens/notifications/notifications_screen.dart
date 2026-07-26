@@ -31,11 +31,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     _charger();
   }
 
-  Future<void> _marquerLue(int index) async {
-    await NotificationService.instance.marquerLue(index);
-    _charger();
-  }
-
   Future<void> _viderTout() async {
     await NotificationService.instance.supprimerTout();
     _charger();
@@ -47,7 +42,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   void _ouvrirNotification(BuildContext context, Map<String, dynamic> n, int index) {
-    _marquerLue(index);
+    // Marquer comme lue en base sans reconstruire la liste maintenant : un
+    // setState() ici rejoue l'animation fadeIn de toute la liste pile pendant
+    // la transition de page vers l'écran cible, ce qui saccade/bloque l'écran
+    // un instant. La liste se rechargera correctement à la prochaine visite.
+    NotificationService.instance.marquerLue(index);
+
     final data = Map<String, dynamic>.from(n['data'] ?? {});
     final type = (data['type'] ?? '').toString();
     final id = data['id']?.toString();
