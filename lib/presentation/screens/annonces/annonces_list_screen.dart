@@ -71,7 +71,7 @@ class _AnnoncesListScreenState extends ConsumerState<AnnoncesListScreen> {
           Expanded(
             child: async.when(
               loading: () => const _ShimmerLoading(),
-              error: (e, _) => Center(child: Text(e.toString())),
+              error: (e, _) => EtatErreur(onRetry: () => ref.invalidate(annoncesProvider)),
               data: (annonces) {
                 final filtrees = _filtre == null
                     ? annonces
@@ -88,7 +88,7 @@ class _AnnoncesListScreenState extends ConsumerState<AnnoncesListScreen> {
                   child: ListView.separated(
                     padding: const EdgeInsets.all(16),
                     itemCount: filtrees.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 12),
+                    separatorBuilder: (_, _) => const SizedBox(height: 12),
                     itemBuilder: (_, i) => _AnnonceCard(annonce: filtrees[i]),
                   ),
                 );
@@ -254,8 +254,8 @@ class _ShimmerLoading extends StatelessWidget {
     return ListView.separated(
       padding: const EdgeInsets.all(16),
       itemCount: 4,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
-      itemBuilder: (_, __) => Shimmer.fromColors(
+      separatorBuilder: (_, _) => const SizedBox(height: 12),
+      itemBuilder: (_, _) => Shimmer.fromColors(
         baseColor: AppColors.shimmerBase,
         highlightColor: AppColors.shimmerHigh,
         child: Container(

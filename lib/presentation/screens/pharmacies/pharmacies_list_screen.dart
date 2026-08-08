@@ -87,10 +87,7 @@ class _PharmaciesListScreenState extends ConsumerState<PharmaciesListScreen> {
           Expanded(
             child: pharmaciesAsync.when(
               loading: () => const _ShimmerLoading(),
-              error: (e, _) => _ErreurWidget(
-                message: e.toString(),
-                onRetry: () => ref.invalidate(pharmaciesProvider),
-              ),
+              error: (e, _) => EtatErreur(onRetry: () => ref.invalidate(pharmaciesProvider)),
               data: (pharmacies) {
                 final liste = _filtrer(pharmacies);
                 if (liste.isEmpty) {
@@ -105,7 +102,7 @@ class _PharmaciesListScreenState extends ConsumerState<PharmaciesListScreen> {
                   child: ListView.separated(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                     itemCount: liste.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 10),
+                    separatorBuilder: (_, _) => const SizedBox(height: 10),
                     itemBuilder: (context, index) =>
                         _PharmacieCard(pharmacie: liste[index]),
                   ),
@@ -230,39 +227,6 @@ class _PharmacieCard extends ConsumerWidget {
   }
 }
 
-class _ErreurWidget extends StatelessWidget {
-  final String message;
-  final VoidCallback onRetry;
-  const _ErreurWidget({required this.message, required this.onRetry});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.wifi_off, size: 48, color: AppColors.textGrey),
-            const SizedBox(height: 16),
-            Text(message, textAlign: TextAlign.center,
-                style: const TextStyle(color: AppColors.textGrey)),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: onRetry,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: AppColors.white,
-              ),
-              child: const Text('Réessayer'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class _ShimmerLoading extends StatelessWidget {
   const _ShimmerLoading();
 
@@ -271,8 +235,8 @@ class _ShimmerLoading extends StatelessWidget {
     return ListView.separated(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       itemCount: 6,
-      separatorBuilder: (_, __) => const SizedBox(height: 10),
-      itemBuilder: (_, __) => Shimmer.fromColors(
+      separatorBuilder: (_, _) => const SizedBox(height: 10),
+      itemBuilder: (_, _) => Shimmer.fromColors(
         baseColor: AppColors.shimmerBase,
         highlightColor: AppColors.surfaceAlt,
         child: Container(

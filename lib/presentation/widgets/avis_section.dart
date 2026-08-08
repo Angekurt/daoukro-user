@@ -50,7 +50,7 @@ class AvisSection extends ConsumerWidget {
         const SizedBox(height: 8),
         avisAsync.when(
           loading: () => const ChargementSkeleton(count: 2, height: 70),
-          error: (_, __) => EtatErreur(onRetry: () => ref.invalidate(avisProvider(params))),
+          error: (_, _) => EtatErreur(onRetry: () => ref.invalidate(avisProvider(params))),
           data: (liste) {
             if (liste.isEmpty) {
               return const EtatVide(

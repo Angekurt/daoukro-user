@@ -26,7 +26,12 @@ class SignalementsNotifier extends AsyncNotifier<List<SignalementModel>> {
     // Transmission à la mairie — best-effort : le signalement reste
     // visible localement même si l'envoi échoue (hors ligne).
     try {
-      await SignalementRepository().envoyer(s);
+      final photoUrl = await SignalementRepository().envoyer(s);
+      if (photoUrl != null) {
+        final misAJour = liste.map((e) => e.id == s.id ? e.copyWith(photoUrl: photoUrl) : e).toList();
+        await prefs.setStringList(_kKey, misAJour.map((e) => jsonEncode(e.toJson())).toList());
+        state = AsyncData(misAJour);
+      }
     } catch (e) {
       debugPrint('[SIGNALEMENT] envoi différé (hors ligne ?) : $e');
     }

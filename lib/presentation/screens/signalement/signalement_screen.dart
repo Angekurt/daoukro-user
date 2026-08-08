@@ -1,7 +1,10 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../providers/signalement_provider.dart';
 import '../../../data/models/signalement_model.dart';
@@ -21,6 +24,8 @@ class _SignalementScreenState extends ConsumerState<SignalementScreen> {
   CategorieSignalement _categorie = CategorieSignalement.voirie;
   bool _loading = false;
   double? _lat, _lng;
+  File? _photo;
+  final _picker = ImagePicker();
 
   static const _categories = {
     CategorieSignalement.voirie:    (icone: Icons.construction,            label: 'Voirie',    couleur: AppColors.administration),
@@ -56,6 +61,41 @@ class _SignalementScreenState extends ConsumerState<SignalementScreen> {
     } catch (_) {}
   }
 
+  Future<void> _choisirPhoto() async {
+    final source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      backgroundColor: AppColors.transparent,
+      builder: (_) => Container(
+        margin: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        decoration: BoxDecoration(color: AppColors.white, borderRadius: BorderRadius.circular(20)),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          ListTile(
+            leading: const Icon(Icons.photo_camera_outlined, color: AppColors.primary),
+            title: const Text('Prendre une photo'),
+            onTap: () => Navigator.pop(context, ImageSource.camera),
+          ),
+          ListTile(
+            leading: const Icon(Icons.photo_library_outlined, color: AppColors.primary),
+            title: const Text('Choisir dans la galerie'),
+            onTap: () => Navigator.pop(context, ImageSource.gallery),
+          ),
+        ]),
+      ),
+    );
+    if (source == null) return;
+    try {
+      final image = await _picker.pickImage(source: source, imageQuality: 70, maxWidth: 1600);
+      if (image != null) setState(() => _photo = File(image.path));
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Impossible d\'accéder à la caméra/galerie.'),
+        backgroundColor: AppColors.danger,
+      ));
+    }
+  }
+
   Future<void> _envoyer() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _loading = true);
@@ -69,6 +109,7 @@ class _SignalementScreenState extends ConsumerState<SignalementScreen> {
       createdAt: DateTime.now(),
       auteur: _nomCtrl.text.trim().isEmpty ? null : _nomCtrl.text.trim(),
       telephone: _telCtrl.text.trim().isEmpty ? null : _telCtrl.text.trim(),
+      photoPath: _photo?.path,
     );
     await ref.read(signalementsProvider.notifier).ajouter(s);
     setState(() => _loading = false);
@@ -77,7 +118,7 @@ class _SignalementScreenState extends ConsumerState<SignalementScreen> {
     _adresseCtrl.clear();
     _nomCtrl.clear();
     _telCtrl.clear();
-    setState(() { _lat = null; _lng = null; });
+    setState(() { _lat = null; _lng = null; _photo = null; });
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: const Row(children: [
         Icon(Icons.check_circle, color: AppColors.white),
@@ -94,6 +135,7 @@ class _SignalementScreenState extends ConsumerState<SignalementScreen> {
   Widget build(BuildContext context) {
     final signalements = ref.watch(signalementsProvider);
     return Scaffold(
+      backgroundColor: AppColors.white,
       appBar: AppBar(
         title: const Text('Signalement citoyen'),
         backgroundColor: AppColors.primary,
@@ -207,6 +249,48 @@ class _SignalementScreenState extends ConsumerState<SignalementScreen> {
                   ),
                 ),
                 const SizedBox(height: 14),
+                const Text('Photo (optionnel)', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textDark)),
+                const SizedBox(height: 8),
+                _photo != null
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Stack(children: [
+                          Image.file(_photo!, height: 160, width: double.infinity, fit: BoxFit.cover),
+                          Positioned(
+                            top: 8, right: 8,
+                            child: GestureDetector(
+                              onTap: () => setState(() => _photo = null),
+                              child: Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: const BoxDecoration(color: Colors.black54, shape: BoxShape.circle),
+                                child: const Icon(Icons.close, color: AppColors.white, size: 18),
+                              ),
+                            ),
+                          ),
+                        ]),
+                      )
+                    : GestureDetector(
+                        onTap: _choisirPhoto,
+                        child: Container(
+                          height: 100,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: AppColors.surfaceAlt,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: AppColors.border, style: BorderStyle.solid),
+                          ),
+                          child: const Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.add_a_photo_outlined, color: AppColors.textGrey, size: 26),
+                              SizedBox(height: 6),
+                              Text('Ajouter une photo du problème',
+                                  style: TextStyle(fontSize: 12, color: AppColors.textGrey)),
+                            ],
+                          ),
+                        ),
+                      ),
+                const SizedBox(height: 14),
                 const Text('Localisation', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textDark)),
                 const SizedBox(height: 8),
                 Row(children: [
@@ -263,7 +347,7 @@ class _SignalementScreenState extends ConsumerState<SignalementScreen> {
 
             signalements.when(
               loading: () => const SizedBox.shrink(),
-              error: (_, __) => const SizedBox.shrink(),
+              error: (_, _) => const SizedBox.shrink(),
               data: (liste) {
                 if (liste.isEmpty) return const SizedBox.shrink();
                 return Column(
@@ -304,6 +388,46 @@ class _SignalementScreenState extends ConsumerState<SignalementScreen> {
   }
 }
 
+/// Vignette 44×44 : photo du signalement si disponible (réseau en priorité,
+/// puis copie locale), sinon l'icône de catégorie en repli.
+class _Vignette extends StatelessWidget {
+  final SignalementModel s;
+  final ({IconData icone, String label, Color couleur}) config;
+  const _Vignette({required this.s, required this.config});
+
+  Widget _icone() => Container(
+    width: 44, height: 44,
+    decoration: BoxDecoration(color: config.couleur.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
+    child: Icon(config.icone, color: config.couleur, size: 20),
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    if (s.photoUrl != null) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: CachedNetworkImage(
+          imageUrl: s.photoUrl!,
+          width: 44, height: 44, fit: BoxFit.cover,
+          placeholder: (_, _) => _icone(),
+          errorWidget: (_, _, _) => _icone(),
+        ),
+      );
+    }
+    if (s.photoPath != null) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: Image.file(
+          File(s.photoPath!),
+          width: 44, height: 44, fit: BoxFit.cover,
+          errorBuilder: (_, _, _) => _icone(),
+        ),
+      );
+    }
+    return _icone();
+  }
+}
+
 class _SignalementTile extends StatelessWidget {
   final SignalementModel s;
   final ({IconData icone, String label, Color couleur}) config;
@@ -336,11 +460,7 @@ class _SignalementTile extends StatelessWidget {
       border: Border.all(color: AppColors.border, width: 1),
     ),
     child: Row(children: [
-      Container(
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(color: config.couleur.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
-        child: Icon(config.icone, color: config.couleur, size: 20),
-      ),
+      _Vignette(s: s, config: config),
       const SizedBox(width: 12),
       Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(config.label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textDark)),

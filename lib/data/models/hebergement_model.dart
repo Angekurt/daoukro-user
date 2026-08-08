@@ -1,3 +1,5 @@
+import '../../core/utils/parsing.dart';
+
 class HebergementModel {
   final int id;
   final String nom;
@@ -43,8 +45,8 @@ class HebergementModel {
       description: json['description'],
       adresse: json['adresse'],
       telephone: json['telephone'],
-      latitude: json['latitude'] != null ? double.parse(json['latitude'].toString()) : null,
-      longitude: json['longitude'] != null ? double.parse(json['longitude'].toString()) : null,
+      latitude: parseCoord(json['latitude']),
+      longitude: parseCoord(json['longitude']),
       prixMin: json['prix_min'] != null ? double.parse(json['prix_min'].toString()) : null,
       prixMax: json['prix_max'] != null ? double.parse(json['prix_max'].toString()) : null,
       photo: json['photo'],

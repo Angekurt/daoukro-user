@@ -1,3 +1,5 @@
+import '../../core/utils/parsing.dart';
+
 class ImmobilierModel {
   final int id;
   final String titre;
@@ -50,8 +52,8 @@ class ImmobilierModel {
       surface: json['surface'],
       nbChambres: json['nb_chambres'],
       telephone: json['telephone'],
-      latitude: json['latitude'] != null ? double.parse(json['latitude'].toString()) : null,
-      longitude: json['longitude'] != null ? double.parse(json['longitude'].toString()) : null,
+      latitude: parseCoord(json['latitude']),
+      longitude: parseCoord(json['longitude']),
       photo: json['photo'],
       photoUrl: json['photo_url'],
       photos: json['photos_urls'] != null ? List<String>.from(json['photos_urls']) : const [],

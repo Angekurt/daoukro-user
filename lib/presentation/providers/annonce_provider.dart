@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/utils/offline_fetch.dart';
 import '../../data/models/annonce_model.dart';
 import '../../data/repositories/annonce_repository.dart';
 
@@ -6,14 +7,20 @@ final annonceRepositoryProvider = Provider<AnnonceRepository>((ref) {
   return AnnonceRepository();
 });
 
-final annoncesProvider = FutureProvider<List<AnnonceModel>>((ref) async {
-  try {
-    final repo = ref.read(annonceRepositoryProvider);
-    return await repo.getAnnonces();
-  } catch (_) {
-    // Données de démo tant que l'API n'est pas prête
-    return _annoncesDemo;
-  }
+final annoncesProvider = StreamProvider<List<AnnonceModel>>((ref) {
+  final repo = ref.read(annonceRepositoryProvider);
+  return listOfflineFirst<AnnonceModel>(
+    cacheKey: 'annonces_list',
+    fromJson: AnnonceModel.fromJson,
+    fetch: () async {
+      try {
+        return await repo.getAnnonces();
+      } catch (_) {
+        // Données de démo tant que l'API n'est pas prête
+        return _annoncesDemo;
+      }
+    },
+  );
 });
 
 final _annoncesDemo = [

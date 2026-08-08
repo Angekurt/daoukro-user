@@ -5,6 +5,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/services/contact_service.dart';
 import 'package:intl/intl.dart';
 import '../../providers/pharmacie_provider.dart';
+import '../../widgets/etat_widgets.dart';
 import '../../../data/models/garde_model.dart';
 import '../../../data/models/pharmacie_model.dart';
 
@@ -43,27 +44,7 @@ class GardesScreen extends ConsumerWidget {
       ),
       body: gardesAsync.when(
         loading: () => const Center(child: CircularProgressIndicator(color: AppColors.gardeActive)),
-        error: (e, _) => Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.wifi_off, size: 48, color: AppColors.textGrey),
-              const SizedBox(height: 16),
-              Text(e.toString(),
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: AppColors.textGrey)),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () => ref.invalidate(gardesActivesProvider),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.gardeActive,
-                  foregroundColor: AppColors.white,
-                ),
-                child: const Text('Réessayer'),
-              ),
-            ],
-          ),
-        ),
+        error: (e, _) => EtatErreur(onRetry: () => ref.invalidate(gardesActivesProvider)),
         data: (gardes) {
           if (gardes.isEmpty) {
             return Center(
@@ -422,7 +403,7 @@ class _PulseDotState extends State<_PulseDot>
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _animation,
-      builder: (_, __) => Container(
+      builder: (_, _) => Container(
         width: 14,
         height: 14,
         decoration: BoxDecoration(

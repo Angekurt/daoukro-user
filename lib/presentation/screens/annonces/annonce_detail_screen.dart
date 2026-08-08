@@ -4,6 +4,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/services/contact_service.dart';
 import '../../providers/annonce_provider.dart';
 import '../../widgets/action_button.dart';
+import '../../widgets/etat_widgets.dart';
 import '../../widgets/photo_gallery.dart';
 import '../../../data/models/annonce_model.dart';
 
@@ -48,7 +49,7 @@ class AnnoncDetailScreen extends ConsumerWidget {
       loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (e, _) => Scaffold(
         appBar: AppBar(title: const Text('Détail'), backgroundColor: AppColors.primary, foregroundColor: AppColors.white),
-        body: Center(child: Text(e.toString())),
+        body: EtatErreur(onRetry: () => ref.invalidate(annoncesProvider)),
       ),
       data: (liste) {
         final idx = liste.indexWhere((e) => e.id == id);
@@ -56,6 +57,7 @@ class AnnoncDetailScreen extends ConsumerWidget {
         final a = liste[idx];
         final couleur = _couleurType(a.type);
         return Scaffold(
+          backgroundColor: AppColors.white,
           body: CustomScrollView(
             slivers: [
               SliverAppBar(

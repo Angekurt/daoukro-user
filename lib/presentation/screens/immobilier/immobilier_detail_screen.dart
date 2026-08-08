@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/widgets/support_fab.dart';
 import '../../providers/modules_provider.dart';
+import '../../widgets/etat_widgets.dart';
 import '../../widgets/photo_gallery.dart';
 
 class ImmobilierDetailScreen extends ConsumerWidget {
@@ -42,12 +43,13 @@ class ImmobilierDetailScreen extends ConsumerWidget {
       loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (e, _) => Scaffold(
         appBar: AppBar(title: const Text('Détail'), backgroundColor: _couleur, foregroundColor: AppColors.white),
-        body: Center(child: Text(e.toString())),
+        body: EtatErreur(onRetry: () => ref.invalidate(immobilierProvider)),
       ),
       data: (liste) {
         final bien = liste.firstWhere((e) => e.id == id, orElse: () => liste.first);
         final isVente = bien.typeOffre == 'vente';
         return Scaffold(
+          backgroundColor: AppColors.white,
           body: CustomScrollView(
             slivers: [
               SliverAppBar(

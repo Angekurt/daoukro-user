@@ -194,23 +194,7 @@ class _OngletServicesPublicsState
         Expanded(
           child: async.when(
             loading: () => const _ShimmerLoading(),
-            error: (e, _) => Center(
-              child: Column(mainAxisSize: MainAxisSize.min, children: [
-                const Icon(Icons.wifi_off, size: 48, color: AppColors.textGrey),
-                const SizedBox(height: 16),
-                Text(e.toString(),
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: AppColors.textGrey)),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () => ref.invalidate(servicesPublicsProvider),
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: AppColors.white),
-                  child: const Text('Réessayer'),
-                ),
-              ]),
-            ),
+            error: (e, _) => EtatErreur(onRetry: () => ref.invalidate(servicesPublicsProvider)),
             data: (services) {
               final liste = _filtrer(services);
               if (liste.isEmpty) {
@@ -225,7 +209,7 @@ class _OngletServicesPublicsState
                 child: ListView.separated(
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                   itemCount: liste.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 10),
+                  separatorBuilder: (_, _) => const SizedBox(height: 10),
                   itemBuilder: (_, i) => _ServiceCard(service: liste[i]),
                 ),
               );
@@ -266,8 +250,8 @@ class _OngletHebergementImmobilier extends ConsumerWidget {
           Expanded(
             child: TabBarView(
               children: [
-                _HebergementsList(async: hebergementsAsync),
-                _ImmobilierList(async: immobilierAsync),
+                _HebergementsList(async: hebergementsAsync, onRefresh: () async => ref.invalidate(hebergementsProvider)),
+                _ImmobilierList(async: immobilierAsync, onRefresh: () async => ref.invalidate(immobilierProvider)),
               ],
             ),
           ),
@@ -279,19 +263,20 @@ class _OngletHebergementImmobilier extends ConsumerWidget {
 
 class _HebergementsList extends StatelessWidget {
   final AsyncValue<List<dynamic>> async;
-  const _HebergementsList({required this.async});
+  final Future<void> Function() onRefresh;
+  const _HebergementsList({required this.async, required this.onRefresh});
 
   @override
   Widget build(BuildContext context) {
     return async.when(
       loading: () => const _ShimmerLoading(),
-      error: (e, _) => Center(child: Text(e.toString())),
+      error: (e, _) => EtatErreur(onRetry: onRefresh),
       data: (liste) => RefreshIndicator(
-        onRefresh: () async {},
+        onRefresh: onRefresh,
         child: ListView.separated(
           padding: const EdgeInsets.all(16),
           itemCount: liste.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 12),
+          separatorBuilder: (_, _) => const SizedBox(height: 12),
           itemBuilder: (_, i) {
             final h = liste[i];
             return GestureDetector(
@@ -353,19 +338,20 @@ class _HebergementsList extends StatelessWidget {
 
 class _ImmobilierList extends StatelessWidget {
   final AsyncValue<List<dynamic>> async;
-  const _ImmobilierList({required this.async});
+  final Future<void> Function() onRefresh;
+  const _ImmobilierList({required this.async, required this.onRefresh});
 
   @override
   Widget build(BuildContext context) {
     return async.when(
       loading: () => const _ShimmerLoading(),
-      error: (e, _) => Center(child: Text(e.toString())),
+      error: (e, _) => EtatErreur(onRetry: onRefresh),
       data: (liste) => RefreshIndicator(
-        onRefresh: () async {},
+        onRefresh: onRefresh,
         child: ListView.separated(
           padding: const EdgeInsets.all(16),
           itemCount: liste.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 12),
+          separatorBuilder: (_, _) => const SizedBox(height: 12),
           itemBuilder: (_, i) {
             final bien = liste[i];
             return GestureDetector(
@@ -454,8 +440,8 @@ class _OngletCommerceArtisans extends ConsumerWidget {
           Expanded(
             child: TabBarView(
               children: [
-                _ArtisansList(async: artisansAsync),
-                _AnnoncsList(async: annoncesAsync),
+                _ArtisansList(async: artisansAsync, onRefresh: () async => ref.invalidate(artisansProvider)),
+                _AnnoncsList(async: annoncesAsync, onRefresh: () async => ref.invalidate(annoncesProvider)),
               ],
             ),
           ),
@@ -467,19 +453,20 @@ class _OngletCommerceArtisans extends ConsumerWidget {
 
 class _ArtisansList extends StatelessWidget {
   final AsyncValue<List<dynamic>> async;
-  const _ArtisansList({required this.async});
+  final Future<void> Function() onRefresh;
+  const _ArtisansList({required this.async, required this.onRefresh});
 
   @override
   Widget build(BuildContext context) {
     return async.when(
       loading: () => const _ShimmerLoading(),
-      error: (e, _) => Center(child: Text(e.toString())),
+      error: (e, _) => EtatErreur(onRetry: onRefresh),
       data: (liste) => RefreshIndicator(
-        onRefresh: () async {},
+        onRefresh: onRefresh,
         child: ListView.separated(
           padding: const EdgeInsets.all(16),
           itemCount: liste.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 12),
+          separatorBuilder: (_, _) => const SizedBox(height: 12),
           itemBuilder: (_, i) {
             final artisan = liste[i];
             return GestureDetector(
@@ -553,19 +540,20 @@ class _ArtisansList extends StatelessWidget {
 
 class _AnnoncsList extends StatelessWidget {
   final AsyncValue<List<dynamic>> async;
-  const _AnnoncsList({required this.async});
+  final Future<void> Function() onRefresh;
+  const _AnnoncsList({required this.async, required this.onRefresh});
 
   @override
   Widget build(BuildContext context) {
     return async.when(
       loading: () => const _ShimmerLoading(),
-      error: (e, _) => Center(child: Text(e.toString())),
+      error: (e, _) => EtatErreur(onRetry: onRefresh),
       data: (liste) => RefreshIndicator(
-        onRefresh: () async {},
+        onRefresh: onRefresh,
         child: ListView.separated(
           padding: const EdgeInsets.all(16),
           itemCount: liste.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 12),
+          separatorBuilder: (_, _) => const SizedBox(height: 12),
           itemBuilder: (_, i) {
             final annonce = liste[i];
             return GestureDetector(
@@ -723,8 +711,8 @@ class _ShimmerLoading extends StatelessWidget {
     return ListView.separated(
       padding: const EdgeInsets.all(16),
       itemCount: count,
-      separatorBuilder: (_, __) => const SizedBox(height: 10),
-      itemBuilder: (_, __) => Shimmer.fromColors(
+      separatorBuilder: (_, _) => const SizedBox(height: 10),
+      itemBuilder: (_, _) => Shimmer.fromColors(
         baseColor: AppColors.shimmerBase,
         highlightColor: AppColors.shimmerHigh,
         child: Container(

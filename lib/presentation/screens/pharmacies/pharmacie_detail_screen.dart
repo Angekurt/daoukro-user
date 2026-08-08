@@ -7,6 +7,7 @@ import '../../../core/services/contact_service.dart';
 import '../../../core/widgets/support_fab.dart';
 import '../../providers/pharmacie_provider.dart';
 import '../../widgets/action_button.dart';
+import '../../widgets/etat_widgets.dart';
 import '../../widgets/mini_map_card.dart';
 import '../../widgets/photo_gallery.dart';
 import '../../../data/models/garde_model.dart';
@@ -25,6 +26,7 @@ class PharmacieDetailScreen extends ConsumerWidget {
     final pharmacieAsync = ref.watch(pharmacieDetailProvider(id));
 
     return Scaffold(
+      backgroundColor: AppColors.white,
       body: pharmacieAsync.when(
         loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
         error: (e, _) => Column(
@@ -35,7 +37,7 @@ class PharmacieDetailScreen extends ConsumerWidget {
               foregroundColor: AppColors.white,
               leading: const BoutonRetour(blanc: true),
             ),
-            Center(child: Text(e.toString())),
+            EtatErreur(onRetry: () => ref.invalidate(pharmacieDetailProvider(id))),
           ],
         ),
         data: (pharmacie) {
@@ -157,7 +159,7 @@ class _PharmacieDeGardeSection extends StatelessWidget {
         padding: EdgeInsets.symmetric(vertical: 12),
         child: Center(child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary)),
       ),
-      error: (_, __) => _ErrorOuVide(
+      error: (_, _) => _ErrorOuVide(
         titre: 'Pharmacies de garde indisponibles',
         message: "Impossible de charger les pharmacies de garde pour le moment.",
       ),

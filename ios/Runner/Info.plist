@@ -26,6 +26,10 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Daoukro Digital utilise l'appareil photo pour joindre une photo à un signalement.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Daoukro Digital accède à vos photos pour joindre une image à un signalement.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

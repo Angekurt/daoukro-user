@@ -73,7 +73,7 @@ class _SplashScreenState extends State<SplashScreen>
       body: Center(
         child: AnimatedBuilder(
           animation: _ctrl,
-          builder: (_, __) => Opacity(
+          builder: (_, _) => Opacity(
             opacity: _fadeAnim.value,
             child: Transform.translate(
               offset: Offset(0, _slideAnim.value),

@@ -20,7 +20,7 @@ class PhotoGallery extends StatefulWidget {
   });
 
   List<String> get _toutes => [
-        if (photoCouverture != null) photoCouverture!,
+        ?photoCouverture,
         ...photos.where((p) => p != photoCouverture),
       ];
 
@@ -59,12 +59,12 @@ class _PhotoGalleryState extends State<PhotoGallery> {
                 imageUrl: images[i],
                 width: double.infinity,
                 fit: BoxFit.cover,
-                placeholder: (_, __) => Shimmer.fromColors(
+                placeholder: (_, _) => Shimmer.fromColors(
                   baseColor: isDark ? AppColors.cardDark : AppColors.shimmerBase,
                   highlightColor: isDark ? AppColors.white12 : AppColors.shimmerHigh,
                   child: Container(color: isDark ? AppColors.cardDark : AppColors.white),
                 ),
-                errorWidget: (_, __, ___) => Container(
+                errorWidget: (_, _, _) => Container(
                   color: AppColors.surfaceAlt,
                   child: const Icon(Icons.image_not_supported_outlined, color: AppColors.textMuted, size: 32),
                 ),

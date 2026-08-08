@@ -135,7 +135,7 @@ class _ArtisansListScreenState extends ConsumerState<ArtisansListScreen> {
           Expanded(
             child: async.when(
               loading: () => const _ShimmerLoading(),
-              error: (e, _) => Center(child: Text(e.toString())),
+              error: (e, _) => EtatErreur(onRetry: () => ref.invalidate(artisansProvider)),
               data: (liste) {
                 final filtree = _filtrer(liste);
                 if (filtree.isEmpty) {
@@ -150,7 +150,7 @@ class _ArtisansListScreenState extends ConsumerState<ArtisansListScreen> {
                   child: ListView.separated(
                     padding: const EdgeInsets.all(16),
                     itemCount: filtree.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 10),
+                    separatorBuilder: (_, _) => const SizedBox(height: 10),
                     itemBuilder: (_, i) => _ArtisanCard(artisan: filtree[i]),
                   ),
                 );
@@ -311,8 +311,8 @@ class _ShimmerLoading extends StatelessWidget {
     return ListView.separated(
       padding: const EdgeInsets.all(16),
       itemCount: 4,
-      separatorBuilder: (_, __) => const SizedBox(height: 10),
-      itemBuilder: (_, __) => Shimmer.fromColors(
+      separatorBuilder: (_, _) => const SizedBox(height: 10),
+      itemBuilder: (_, _) => Shimmer.fromColors(
         baseColor: AppColors.shimmerBase,
         highlightColor: AppColors.shimmerHigh,
         child: Container(

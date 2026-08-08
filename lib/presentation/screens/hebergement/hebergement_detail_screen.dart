@@ -5,6 +5,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/widgets/support_fab.dart';
 import '../../providers/modules_provider.dart';
 import '../../widgets/action_button.dart';
+import '../../widgets/etat_widgets.dart';
 import '../../widgets/photo_gallery.dart';
 import '../../widgets/avis_section.dart';
 
@@ -41,12 +42,13 @@ class HebergementDetailScreen extends ConsumerWidget {
       loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (e, _) => Scaffold(
         appBar: AppBar(title: const Text('Détail'), backgroundColor: _couleur, foregroundColor: AppColors.white),
-        body: Center(child: Text(e.toString())),
+        body: EtatErreur(onRetry: () => ref.invalidate(hebergementsProvider)),
       ),
       data: (liste) {
         final h = liste.firstWhere((e) => e.id == id, orElse: () => liste.first);
         final aDesPhotos = h.photoUrl != null || h.photos.isNotEmpty;
         return Scaffold(
+          backgroundColor: AppColors.white,
           body: CustomScrollView(
             slivers: [
               SliverAppBar(

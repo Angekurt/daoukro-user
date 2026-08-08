@@ -5,6 +5,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/widgets/support_fab.dart';
 import '../../providers/modules_provider.dart';
 import '../../widgets/action_button.dart';
+import '../../widgets/etat_widgets.dart';
 import '../../../data/models/urgence_actualite_model.dart';
 
 class ActualitesListScreen extends ConsumerWidget {
@@ -25,14 +26,14 @@ class ActualitesListScreen extends ConsumerWidget {
       ),
       body: async.when(
         loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
-        error: (e, _) => Center(child: Text(e.toString())),
+        error: (e, _) => EtatErreur(onRetry: () => ref.invalidate(actualitesProvider)),
         data: (actualites) => RefreshIndicator(
           color: AppColors.primary,
           onRefresh: () async => ref.invalidate(actualitesProvider),
           child: ListView.separated(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
             itemCount: actualites.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 10),
+            separatorBuilder: (_, _) => const SizedBox(height: 10),
             itemBuilder: (_, i) => _ActualiteCard(actualite: actualites[i]),
           ),
         ),

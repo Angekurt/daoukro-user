@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/utils/offline_fetch.dart';
 import '../../data/models/service_public_model.dart';
 import '../../data/repositories/service_public_repository.dart';
 
@@ -8,9 +9,13 @@ final servicePublicRepositoryProvider = Provider<ServicePublicRepository>((ref) 
 });
 
 // Liste tous les services publics
-final servicesPublicsProvider = FutureProvider<List<ServicePublicModel>>((ref) async {
+final servicesPublicsProvider = StreamProvider<List<ServicePublicModel>>((ref) {
   final repository = ref.read(servicePublicRepositoryProvider);
-  return repository.getServicesPublics();
+  return listOfflineFirst<ServicePublicModel>(
+    cacheKey: 'services_publics_list',
+    fromJson: ServicePublicModel.fromJson,
+    fetch: () => repository.getServicesPublics(),
+  );
 });
 
 // Détail d'un service public

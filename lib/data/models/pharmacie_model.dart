@@ -1,3 +1,5 @@
+import '../../core/utils/parsing.dart';
+
 class PharmacieModel {
   final int id;
   final int villeId;
@@ -37,12 +39,8 @@ class PharmacieModel {
       nom: json['nom'],
       adresse: json['adresse'],
       telephone: json['telephone'],
-      latitude: json['latitude'] != null
-          ? double.parse(json['latitude'].toString())
-          : null,
-      longitude: json['longitude'] != null
-          ? double.parse(json['longitude'].toString())
-          : null,
+      latitude: parseCoord(json['latitude']),
+      longitude: parseCoord(json['longitude']),
       horaires: json['horaires'],
       photo: json['photo'],
       photoUrl: json['photo_url'],

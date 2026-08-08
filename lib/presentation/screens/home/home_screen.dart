@@ -6,7 +6,6 @@ import 'package:shimmer/shimmer.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/services/contact_service.dart';
 import '../../../core/services/notification_service.dart';
-import '../../../core/widgets/support_fab.dart';
 import '../../providers/annonce_provider.dart';
 import '../../providers/modules_provider.dart';
 import '../../widgets/meteo_widget.dart';
@@ -31,7 +30,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: const SupportFab(contexte: 'Accueil'),
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
@@ -276,7 +274,7 @@ class _SectionActualites extends ConsumerWidget {
         ),
         async.when(
           loading: () => const _ShimmerHorizontal(height: 100, width: 280),
-          error: (_, __) => const SizedBox.shrink(),
+          error: (_, _) => const SizedBox.shrink(),
           data: (actualites) => SizedBox(
             height: 100,
             child: ListView.builder(
@@ -363,7 +361,7 @@ class _SectionAnnonces extends ConsumerWidget {
         ),
         async.when(
           loading: () => const _ShimmerHorizontal(height: 190, width: 200),
-          error: (_, __) => const SizedBox.shrink(),
+          error: (_, _) => const SizedBox.shrink(),
           data: (annonces) => SizedBox(
             height: 190,
             child: ListView.builder(
@@ -480,7 +478,7 @@ class _SectionHebergements extends ConsumerWidget {
         ),
         async.when(
           loading: () => const _ShimmerHorizontal(height: 170, width: 220),
-          error: (_, __) => const SizedBox.shrink(),
+          error: (_, _) => const SizedBox.shrink(),
           data: (hebergements) => SizedBox(
             height: 170,
             child: ListView.builder(
@@ -590,7 +588,7 @@ class _SectionArtisans extends ConsumerWidget {
         ),
         async.when(
           loading: () => const _ShimmerListe(),
-          error: (_, __) => const SizedBox.shrink(),
+          error: (_, _) => const SizedBox.shrink(),
           data: (artisans) => ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -818,7 +816,7 @@ class _ShimmerHorizontal extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         itemCount: 3,
-        itemBuilder: (_, __) => Shimmer.fromColors(
+        itemBuilder: (_, _) => Shimmer.fromColors(
           baseColor: AppColors.shimmerBase,
           highlightColor: AppColors.shimmerHigh,
           child: Container(
@@ -845,7 +843,7 @@ class _ShimmerListe extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.symmetric(horizontal: 16),
       itemCount: 3,
-      itemBuilder: (_, __) => Shimmer.fromColors(
+      itemBuilder: (_, _) => Shimmer.fromColors(
         baseColor: AppColors.shimmerBase,
         highlightColor: AppColors.shimmerHigh,
         child: Container(

@@ -58,7 +58,7 @@ class _ImmobilierListScreenState extends ConsumerState<ImmobilierListScreen>
       ),
       body: async.when(
         loading: () => const _ShimmerLoading(),
-        error: (e, _) => Center(child: Text(e.toString())),
+        error: (e, _) => EtatErreur(onRetry: () => ref.invalidate(immobilierProvider)),
         data: (liste) => TabBarView(
           controller: _tabController,
           children: [
@@ -96,7 +96,7 @@ class _ListeImmobilier extends StatelessWidget {
       child: ListView.separated(
         padding: const EdgeInsets.all(16),
         itemCount: items.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
+        separatorBuilder: (_, _) => const SizedBox(height: 12),
         itemBuilder: (_, i) => _ImmobilierCard(item: items[i]),
       ),
     );
@@ -242,8 +242,8 @@ class _ShimmerLoading extends StatelessWidget {
     return ListView.separated(
       padding: const EdgeInsets.all(16),
       itemCount: 4,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
-      itemBuilder: (_, __) => Shimmer.fromColors(
+      separatorBuilder: (_, _) => const SizedBox(height: 12),
+      itemBuilder: (_, _) => Shimmer.fromColors(
         baseColor: AppColors.shimmerBase,
         highlightColor: AppColors.shimmerHigh,
         child: Container(

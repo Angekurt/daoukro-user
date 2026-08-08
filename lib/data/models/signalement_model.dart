@@ -12,6 +12,12 @@ class SignalementModel {
   final DateTime createdAt;
   final String? auteur;
   final String? telephone;
+  // Chemin local de la photo prise/choisie sur l'appareil — permet de
+  // l'afficher immédiatement dans "Mes signalements" avant même l'envoi.
+  final String? photoPath;
+  // URL de la photo une fois envoyée et hébergée par l'API — remplace
+  // photoPath dans l'affichage dès qu'elle est connue.
+  final String? photoUrl;
 
   const SignalementModel({
     required this.id,
@@ -24,7 +30,24 @@ class SignalementModel {
     required this.createdAt,
     this.auteur,
     this.telephone,
+    this.photoPath,
+    this.photoUrl,
   });
+
+  SignalementModel copyWith({String? photoUrl}) => SignalementModel(
+    id: id,
+    categorie: categorie,
+    description: description,
+    adresse: adresse,
+    latitude: latitude,
+    longitude: longitude,
+    statut: statut,
+    createdAt: createdAt,
+    auteur: auteur,
+    telephone: telephone,
+    photoPath: photoPath,
+    photoUrl: photoUrl ?? this.photoUrl,
+  );
 
   Map<String, dynamic> toJson() => {
     'id': id,
@@ -37,6 +60,8 @@ class SignalementModel {
     'created_at': createdAt.toIso8601String(),
     'auteur': auteur,
     'telephone': telephone,
+    'photo_path': photoPath,
+    'photo_url': photoUrl,
   };
 
   factory SignalementModel.fromJson(Map<String, dynamic> json) => SignalementModel(
@@ -52,5 +77,7 @@ class SignalementModel {
     createdAt: DateTime.parse(json['created_at']),
     auteur: json['auteur'],
     telephone: json['telephone'],
+    photoPath: json['photo_path'],
+    photoUrl: json['photo_url'],
   );
 }

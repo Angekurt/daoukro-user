@@ -45,37 +45,37 @@ final appRouter = GoRouter(
     // Splash
     GoRoute(
       path: '/splash',
-      builder: (_, __) => const SplashScreen(),
+      builder: (_, _) => const SplashScreen(),
     ),
 
     // Onboarding
     GoRoute(
       path: '/onboarding',
-      builder: (_, __) => const OnboardingScreen(),
+      builder: (_, _) => const OnboardingScreen(),
     ),
 
     // À propos
     GoRoute(
       parentNavigatorKey: _rootNavigatorKey,
       path: '/about',
-      builder: (_, __) => const AboutScreen(),
+      builder: (_, _) => const AboutScreen(),
     ),
 
     // Shell avec bottom nav — routes principales
     ShellRoute(
       builder: (context, state, child) => MainShell(child: child),
       routes: [
-        GoRoute(path: '/', builder: (_, __) => const HomeScreen()),
-        GoRoute(path: '/carte', builder: (_, __) => const CarteScreen()),
-        GoRoute(path: '/pharmacies', builder: (_, __) => const PharmaciesListScreen()),
-        GoRoute(path: '/gardes', builder: (_, __) => const GardesScreen()),
-        GoRoute(path: '/services', builder: (_, __) => const ServicesListScreen()),
-        GoRoute(path: '/hebergements', builder: (_, __) => const HebergementsListScreen()),
-        GoRoute(path: '/immobilier', builder: (_, __) => const ImmobilierListScreen()),
-        GoRoute(path: '/artisans', builder: (_, __) => const ArtisansListScreen()),
-        GoRoute(path: '/urgences', builder: (_, __) => const UrgencesScreen()),
-        GoRoute(path: '/actualites', builder: (_, __) => const ActualitesListScreen()),
-        GoRoute(path: '/annonces', builder: (_, __) => const AnnoncesListScreen()),
+        GoRoute(path: '/', builder: (_, _) => const HomeScreen()),
+        GoRoute(path: '/carte', builder: (_, _) => const CarteScreen()),
+        GoRoute(path: '/pharmacies', builder: (_, _) => const PharmaciesListScreen()),
+        GoRoute(path: '/gardes', builder: (_, _) => const GardesScreen()),
+        GoRoute(path: '/services', builder: (_, _) => const ServicesListScreen()),
+        GoRoute(path: '/hebergements', builder: (_, _) => const HebergementsListScreen()),
+        GoRoute(path: '/immobilier', builder: (_, _) => const ImmobilierListScreen()),
+        GoRoute(path: '/artisans', builder: (_, _) => const ArtisansListScreen()),
+        GoRoute(path: '/urgences', builder: (_, _) => const UrgencesScreen()),
+        GoRoute(path: '/actualites', builder: (_, _) => const ActualitesListScreen()),
+        GoRoute(path: '/annonces', builder: (_, _) => const AnnoncesListScreen()),
       ],
     ),
     // Pages détail — avec parentNavigatorKey pour s'afficher par-dessus le shell
@@ -130,12 +130,12 @@ final appRouter = GoRouter(
     GoRoute(
       parentNavigatorKey: _rootNavigatorKey,
       path: '/signalement',
-      builder: (_, __) => const SignalementScreen(),
+      builder: (_, _) => const SignalementScreen(),
     ),
     GoRoute(
       parentNavigatorKey: _rootNavigatorKey,
       path: '/notifications',
-      builder: (_, __) => const NotificationsScreen(),
+      builder: (_, _) => const NotificationsScreen(),
     ),
     GoRoute(
       parentNavigatorKey: _rootNavigatorKey,
@@ -172,9 +172,10 @@ class MainShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final surAccueil = GoRouterState.of(context).matchedLocation == '/';
     return Scaffold(
       body: child,
-      floatingActionButton: const SupportFab(),
+      floatingActionButton: surAccueil ? null : const SupportFab(),
       bottomNavigationBar: _BottomNav(
         currentIndex: _index(context),
         onTap: (i) {

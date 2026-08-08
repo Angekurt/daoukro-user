@@ -11,6 +11,10 @@
     <!-- Appels téléphoniques -->
     <uses-permission android:name="android.permission.CALL_PHONE" />
 
+    <!-- Photo jointe à un signalement -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+
     <application
         android:label="Daoukro Digital"
         android:icon="@mipmap/ic_launcher"

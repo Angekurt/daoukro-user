@@ -78,6 +78,14 @@ class _ItineraireScreenState extends State<ItineraireScreen> {
         locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
       );
 
+      if (!position.latitude.isFinite || !position.longitude.isFinite) {
+        setState(() {
+          _erreur = 'Position GPS invalide, réessayez.';
+          _chargement = false;
+        });
+        return;
+      }
+
       final distanceMetres = Geolocator.distanceBetween(
         position.latitude,
         position.longitude,
@@ -132,10 +140,15 @@ class _ItineraireScreenState extends State<ItineraireScreen> {
     if (_distance != null) {
       if (_distance! > 10000) {
         zoom = 11;
-      } else if (_distance! > 5000) zoom = 12;
-      else if (_distance! > 2000) zoom = 13;
-      else if (_distance! > 500) zoom = 14;
-      else zoom = 16;
+      } else if (_distance! > 5000) {
+        zoom = 12;
+      } else if (_distance! > 2000) {
+        zoom = 13;
+      } else if (_distance! > 500) {
+        zoom = 14;
+      } else {
+        zoom = 16;
+      }
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {

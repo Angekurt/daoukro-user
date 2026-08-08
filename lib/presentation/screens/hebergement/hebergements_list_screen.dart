@@ -76,7 +76,7 @@ class _HebergementsListScreenState extends ConsumerState<HebergementsListScreen>
           Expanded(
             child: async.when(
               loading: () => const _ShimmerLoading(),
-              error: (e, _) => _Erreur(message: e.toString(), onRetry: () => ref.invalidate(hebergementsProvider)),
+              error: (e, _) => EtatErreur(onRetry: () => ref.invalidate(hebergementsProvider)),
               data: (liste) {
                 final filtree = _filtrer(liste);
                 if (filtree.isEmpty) {
@@ -91,7 +91,7 @@ class _HebergementsListScreenState extends ConsumerState<HebergementsListScreen>
                   child: ListView.separated(
                     padding: const EdgeInsets.all(16),
                     itemCount: filtree.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 12),
+                    separatorBuilder: (_, _) => const SizedBox(height: 12),
                     itemBuilder: (_, i) => _HebergementCard(h: filtree[i]),
                   ),
                 );
@@ -218,25 +218,6 @@ class _HebergementCard extends StatelessWidget {
   }
 }
 
-class _Erreur extends StatelessWidget {
-  final String message;
-  final VoidCallback onRetry;
-  const _Erreur({required this.message, required this.onRetry});
-  @override
-  Widget build(BuildContext context) => Center(
-    child: Column(mainAxisSize: MainAxisSize.min, children: [
-      const Icon(Icons.wifi_off, size: 48, color: AppColors.textGrey),
-      const SizedBox(height: 16),
-      Text(message, textAlign: TextAlign.center, style: const TextStyle(color: AppColors.textGrey)),
-      const SizedBox(height: 16),
-      ElevatedButton(onPressed: onRetry,
-          style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: AppColors.white),
-          child: const Text('Réessayer')),
-    ]),
-  );
-}
-
-
 class _ShimmerLoading extends StatelessWidget {
   const _ShimmerLoading();
 
@@ -245,8 +226,8 @@ class _ShimmerLoading extends StatelessWidget {
     return ListView.separated(
       padding: const EdgeInsets.all(16),
       itemCount: 4,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
-      itemBuilder: (_, __) => Shimmer.fromColors(
+      separatorBuilder: (_, _) => const SizedBox(height: 12),
+      itemBuilder: (_, _) => Shimmer.fromColors(
         baseColor: AppColors.shimmerBase,
         highlightColor: AppColors.surfaceAlt,
         child: Container(

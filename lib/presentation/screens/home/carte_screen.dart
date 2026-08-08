@@ -7,7 +7,9 @@ import 'package:geolocator/geolocator.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/services/contact_service.dart';
 import '../../providers/service_public_provider.dart';
+import '../../providers/pharmacie_provider.dart';
 import '../../../data/models/service_public_model.dart';
+import '../../../data/models/pharmacie_model.dart';
 
 class CarteScreen extends ConsumerStatefulWidget {
   const CarteScreen({super.key});
@@ -22,7 +24,10 @@ class _CarteScreenState extends ConsumerState<CarteScreen> {
   Position? _maPosition;
 
   static const LatLng _daoukro = LatLng(7.0667, -3.9667);
-  final List<String> _filtres = ['Tous', 'Santé', 'Sécurité', 'Administration', 'Education', 'Transport'];
+  // "Pharmacies" en 2ème position (juste après "Tous") — priorité MVP : les
+  // pharmacies (et surtout celles de garde) doivent être immédiatement
+  // visibles, les autres services publics viennent progressivement ensuite.
+  final List<String> _filtres = ['Tous', 'Pharmacies', 'Santé', 'Sécurité', 'Administration', 'Education', 'Transport'];
 
   @override
   void initState() {
@@ -39,6 +44,7 @@ class _CarteScreenState extends ConsumerState<CarteScreen> {
         if (permission == LocationPermission.denied) return;
       }
       final position = await Geolocator.getCurrentPosition();
+      if (!position.latitude.isFinite || !position.longitude.isFinite) return;
       if (mounted) setState(() => _maPosition = position);
     } catch (_) {}
   }
@@ -47,12 +53,25 @@ class _CarteScreenState extends ConsumerState<CarteScreen> {
     context.push('/itineraire', extra: {'lat': lat, 'lng': lng, 'nom': nom});
   }
 
+  // Les pharmacies ne sont pas une "catégorie" de service public : elles
+  // s'affichent quand on regarde "Tous" ou spécifiquement "Pharmacies",
+  // et se masquent quand un filtre de service précis est actif.
+  bool get _pharmaciesVisibles => _filtreActif == 'Tous' || _filtreActif == 'Pharmacies';
+
   List<ServicePublicModel> _filtrer(List<ServicePublicModel> services) {
+    if (_filtreActif == 'Pharmacies') return const [];
     var result = services;
     if (_filtreActif != 'Tous') result = result.where((s) => s.categorie?.nom == _filtreActif).toList();
     final q = _searchController.text.toLowerCase();
     if (q.isNotEmpty) result = result.where((s) => s.nom.toLowerCase().contains(q)).toList();
     return result;
+  }
+
+  List<PharmacieModel> _filtrerPharmacies(List<PharmacieModel> pharmacies) {
+    if (!_pharmaciesVisibles) return const [];
+    final q = _searchController.text.toLowerCase();
+    if (q.isEmpty) return pharmacies;
+    return pharmacies.where((p) => p.nom.toLowerCase().contains(q)).toList();
   }
 
   Color _couleur(String? cat) {
@@ -78,15 +97,24 @@ class _CarteScreenState extends ConsumerState<CarteScreen> {
   @override
   Widget build(BuildContext context) {
     final servicesAsync = ref.watch(servicesPublicsProvider);
+    // maybeWhen : si les pharmacies n'ont pas encore chargé (ou échouent),
+    // la carte des services publics s'affiche quand même — pas de blocage
+    // mutuel entre les deux sources.
+    final pharmacies = ref.watch(pharmaciesProvider).maybeWhen(orElse: () => const <PharmacieModel>[], data: (p) => p);
+    final gardesIds = ref.watch(gardesActivesProvider).maybeWhen(
+      orElse: () => const <int>{},
+      data: (gardes) => gardes.map((g) => g.pharmacie.id).toSet(),
+    );
 
     return Scaffold(
       body: Stack(
         children: [
           servicesAsync.when(
             loading: () => _carteVide(),
-            error: (_, __) => _carteVide(),
+            error: (_, _) => _carteVide(),
             data: (services) {
               final filtres = _filtrer(services);
+              final pharmaciesFiltrees = _filtrerPharmacies(pharmacies);
               return FlutterMap(
                 mapController: _mapController,
                 options: const MapOptions(initialCenter: _daoukro, initialZoom: 14, minZoom: 10, maxZoom: 18),
@@ -120,6 +148,27 @@ class _CarteScreenState extends ConsumerState<CarteScreen> {
                               border: Border.all(color: AppColors.white, width: 2),
                             ),
                             child: Icon(ic, color: AppColors.white, size: 20),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  MarkerLayer(
+                    markers: pharmaciesFiltrees.where((p) => p.latitude != null && p.longitude != null).map((p) {
+                      final deGarde = gardesIds.contains(p.id);
+                      final c = deGarde ? AppColors.gardeActive : AppColors.success;
+                      return Marker(
+                        point: LatLng(p.latitude!, p.longitude!),
+                        width: deGarde ? 46 : 40,
+                        height: deGarde ? 46 : 40,
+                        child: GestureDetector(
+                          onTap: () => _afficherInfoPharmacie(p, deGarde: deGarde),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: c, shape: BoxShape.circle,
+                              border: Border.all(color: AppColors.white, width: deGarde ? 3 : 2),
+                            ),
+                            child: Icon(Icons.local_pharmacy, color: AppColors.white, size: deGarde ? 22 : 20),
                           ),
                         ),
                       );
@@ -282,6 +331,80 @@ class _CarteScreenState extends ConsumerState<CarteScreen> {
             Expanded(
               child: ElevatedButton.icon(
                 onPressed: service.latitude != null ? () { Navigator.pop(context); _ouvrirItineraire(service.latitude!, service.longitude!, service.nom); } : null,
+                icon: const Icon(Icons.directions),
+                label: const Text('Itinéraire'),
+                style: ElevatedButton.styleFrom(backgroundColor: AppColors.secondary, foregroundColor: AppColors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+              ),
+            ),
+          ]),
+        ]),
+      ),
+    );
+  }
+
+  void _afficherInfoPharmacie(PharmacieModel pharmacie, {required bool deGarde}) {
+    final c = deGarde ? AppColors.gardeActive : AppColors.success;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.transparent,
+      builder: (_) => Container(
+        margin: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(color: AppColors.white, borderRadius: BorderRadius.circular(20)),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Row(children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(color: c.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
+              child: Icon(Icons.local_pharmacy, color: c, size: 28),
+            ),
+            const SizedBox(width: 16),
+            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Row(children: [
+                Flexible(child: Text(pharmacie.nom, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textDark), overflow: TextOverflow.ellipsis)),
+                if (deGarde) ...[
+                  const SizedBox(width: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                    decoration: BoxDecoration(color: AppColors.gardeActive, borderRadius: BorderRadius.circular(20)),
+                    child: const Text('DE GARDE', style: TextStyle(color: AppColors.white, fontSize: 9, fontWeight: FontWeight.bold, letterSpacing: 0.3)),
+                  ),
+                ],
+              ]),
+              if (pharmacie.horaires != null)
+                Text(pharmacie.horaires!, style: const TextStyle(fontSize: 13, color: AppColors.textGrey)),
+            ])),
+          ]),
+          const SizedBox(height: 12),
+          Row(children: [
+            const Icon(Icons.location_on, size: 16, color: AppColors.textGrey),
+            const SizedBox(width: 8),
+            Expanded(child: Text(pharmacie.adresse, style: const TextStyle(fontSize: 13, color: AppColors.textGrey))),
+          ]),
+          const SizedBox(height: 16),
+          Row(children: [
+            if (pharmacie.telephone != null)
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () { Navigator.pop(context); ContactService.call(context, pharmacie.telephone!); },
+                  icon: const Icon(Icons.phone),
+                  label: const Text('Appeler'),
+                  style: ElevatedButton.styleFrom(backgroundColor: c, foregroundColor: AppColors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                ),
+              ),
+            if (pharmacie.telephone != null) const SizedBox(width: 12),
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: () { Navigator.pop(context); context.push('/pharmacies/${pharmacie.id}'); },
+                icon: const Icon(Icons.info_outline),
+                label: const Text('Détails'),
+                style: OutlinedButton.styleFrom(foregroundColor: c, side: BorderSide(color: c), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: ElevatedButton.icon(
+                onPressed: pharmacie.latitude != null ? () { Navigator.pop(context); _ouvrirItineraire(pharmacie.latitude!, pharmacie.longitude!, pharmacie.nom); } : null,
                 icon: const Icon(Icons.directions),
                 label: const Text('Itinéraire'),
                 style: ElevatedButton.styleFrom(backgroundColor: AppColors.secondary, foregroundColor: AppColors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),

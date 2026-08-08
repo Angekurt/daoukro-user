@@ -61,13 +61,19 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         break;
       case 'pharmacie':
       case 'sante':
-        if (id != null) context.push('/pharmacies/$id');
-        else context.push('/pharmacies');
+        if (id != null) {
+          context.push('/pharmacies/$id');
+        } else {
+          context.push('/pharmacies');
+        }
         break;
       case 'service':
       case 'mairie':
-        if (id != null) context.push('/services/$id');
-        else context.push('/services');
+        if (id != null) {
+          context.push('/services/$id');
+        } else {
+          context.push('/services');
+        }
         break;
       case 'urgence':
       case 'alerte':
@@ -187,7 +193,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           : ListView.separated(
               padding: const EdgeInsets.all(16),
               itemCount: _notifications.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 8),
+              separatorBuilder: (_, _) => const SizedBox(height: 8),
               itemBuilder: (_, i) {
                 final n = _notifications[i];
                 final data = Map<String, dynamic>.from(n['data'] ?? {});

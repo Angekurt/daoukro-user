@@ -6,6 +6,7 @@ import '../../../core/services/contact_service.dart';
 import '../../../core/widgets/support_fab.dart';
 import '../../providers/modules_provider.dart';
 import '../../widgets/action_button.dart';
+import '../../widgets/etat_widgets.dart';
 import '../../../data/models/urgence_actualite_model.dart';
 
 class UrgencesScreen extends ConsumerWidget {
@@ -35,7 +36,7 @@ class UrgencesScreen extends ConsumerWidget {
       ),
       body: async.when(
         loading: () => const Center(child: CircularProgressIndicator(color: _rouge)),
-        error: (e, _) => Center(child: Text(e.toString())),
+        error: (e, _) => EtatErreur(onRetry: () => ref.invalidate(urgencesProvider)),
         data: (urgences) {
           final groupes = <String, List<UrgenceModel>>{};
           for (final u in urgences) {

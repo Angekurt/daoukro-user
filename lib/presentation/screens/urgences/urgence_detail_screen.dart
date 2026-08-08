@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/services/contact_service.dart';
 import '../../providers/modules_provider.dart';
+import '../../widgets/etat_widgets.dart';
 
 class UrgenceDetailScreen extends ConsumerWidget {
   final int id;
@@ -43,12 +44,13 @@ class UrgenceDetailScreen extends ConsumerWidget {
       loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (e, _) => Scaffold(
         appBar: AppBar(title: const Text('Urgence'), backgroundColor: AppColors.danger, foregroundColor: AppColors.white),
-        body: Center(child: Text(e.toString())),
+        body: EtatErreur(onRetry: () => ref.invalidate(urgencesProvider)),
       ),
       data: (liste) {
         final u = liste.firstWhere((e) => e.id == id, orElse: () => liste.first);
         final couleur = _couleurCat(u.categorie);
         return Scaffold(
+          backgroundColor: AppColors.white,
           body: CustomScrollView(
             slivers: [
               SliverAppBar(

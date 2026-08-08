@@ -6,6 +6,7 @@ import '../../../core/services/contact_service.dart';
 import '../../../core/widgets/support_fab.dart';
 import '../../providers/service_public_provider.dart';
 import '../../widgets/action_button.dart';
+import '../../widgets/etat_widgets.dart';
 import '../../widgets/mini_map_card.dart';
 import '../../widgets/photo_gallery.dart';
 
@@ -33,11 +34,12 @@ class ServiceDetailScreen extends ConsumerWidget {
     final serviceAsync = ref.watch(servicePublicDetailProvider(id));
 
     return Scaffold(
+      backgroundColor: AppColors.white,
       body: serviceAsync.when(
         loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
         error: (e, _) => Column(children: [
           AppBar(title: const Text('Service'), backgroundColor: AppColors.primary, foregroundColor: AppColors.white, leading: const BoutonRetour(blanc: true)),
-          Expanded(child: Center(child: Text(e.toString()))),
+          Expanded(child: EtatErreur(onRetry: () => ref.invalidate(servicePublicDetailProvider(id)))),
         ]),
         data: (service) {
           final nomCat = service.categorie?.nom;

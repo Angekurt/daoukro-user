@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../providers/modules_provider.dart';
+import '../../widgets/etat_widgets.dart';
 import '../../widgets/photo_gallery.dart';
 
 class ActualiteDetailScreen extends ConsumerWidget {
@@ -34,12 +35,13 @@ class ActualiteDetailScreen extends ConsumerWidget {
       loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (e, _) => Scaffold(
         appBar: AppBar(title: const Text('Actualité'), backgroundColor: AppColors.primary, foregroundColor: AppColors.white),
-        body: Center(child: Text(e.toString())),
+        body: EtatErreur(onRetry: () => ref.invalidate(actualitesProvider)),
       ),
       data: (liste) {
         final actu = liste.firstWhere((e) => e.id == id, orElse: () => liste.first);
         final couleur = _couleurCat(actu.categorie);
         return Scaffold(
+          backgroundColor: AppColors.white,
           body: CustomScrollView(
             slivers: [
               SliverAppBar(

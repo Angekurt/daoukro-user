@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/network/api_client.dart';
 import '../../core/utils/cache_manager.dart';
+import '../../core/utils/offline_fetch.dart';
 import '../../data/models/hebergement_model.dart';
 import '../../data/models/immobilier_model.dart';
 import '../../data/models/artisan_model.dart';
@@ -8,22 +9,28 @@ import '../../data/models/urgence_actualite_model.dart';
 
 // ─── HÉBERGEMENTS ────────────────────────────────────────────────────────────
 
-final hebergementsProvider = FutureProvider<List<HebergementModel>>((ref) async {
+final hebergementsProvider = StreamProvider<List<HebergementModel>>((ref) {
   const String cacheKey = 'hebergements_list';
-  try {
-    final dio = ApiClient.getInstance();
-    final response = await dio.get('/hebergements');
-    final List data = response.data['data'];
-    await CacheManager.save(cacheKey, response.data);
-    return data.map((j) => HebergementModel.fromJson(Map<String, dynamic>.from(j))).toList();
-  } catch (_) {
-    final cached = CacheManager.get(cacheKey);
-    if (cached != null && cached['data'] != null) {
-      final List data = cached['data'];
-      return data.map((j) => HebergementModel.fromJson(Map<String, dynamic>.from(j))).toList();
-    }
-    return _hebergementsDemo;
-  }
+  final dio = ApiClient.getInstance();
+  return listOfflineFirst<HebergementModel>(
+    cacheKey: cacheKey,
+    fromJson: HebergementModel.fromJson,
+    fetch: () async {
+      try {
+        final response = await dio.get('/hebergements');
+        final List data = response.data['data'];
+        await CacheManager.save(cacheKey, response.data);
+        return data.map((j) => HebergementModel.fromJson(Map<String, dynamic>.from(j))).toList();
+      } catch (_) {
+        final cached = CacheManager.get(cacheKey);
+        if (cached != null && cached['data'] != null) {
+          final List data = cached['data'];
+          return data.map((j) => HebergementModel.fromJson(Map<String, dynamic>.from(j))).toList();
+        }
+        return _hebergementsDemo;
+      }
+    },
+  );
 });
 
 final _hebergementsDemo = [
@@ -47,22 +54,28 @@ final _hebergementsDemo = [
 
 // ─── IMMOBILIER ──────────────────────────────────────────────────────────────
 
-final immobilierProvider = FutureProvider<List<ImmobilierModel>>((ref) async {
+final immobilierProvider = StreamProvider<List<ImmobilierModel>>((ref) {
   const String cacheKey = 'immobilier_list';
-  try {
-    final dio = ApiClient.getInstance();
-    final response = await dio.get('/immobilier');
-    final List data = response.data['data'];
-    await CacheManager.save(cacheKey, response.data);
-    return data.map((j) => ImmobilierModel.fromJson(Map<String, dynamic>.from(j))).toList();
-  } catch (_) {
-    final cached = CacheManager.get(cacheKey);
-    if (cached != null && cached['data'] != null) {
-      final List data = cached['data'];
-      return data.map((j) => ImmobilierModel.fromJson(Map<String, dynamic>.from(j))).toList();
-    }
-    return _immobilierDemo;
-  }
+  final dio = ApiClient.getInstance();
+  return listOfflineFirst<ImmobilierModel>(
+    cacheKey: cacheKey,
+    fromJson: ImmobilierModel.fromJson,
+    fetch: () async {
+      try {
+        final response = await dio.get('/immobilier');
+        final List data = response.data['data'];
+        await CacheManager.save(cacheKey, response.data);
+        return data.map((j) => ImmobilierModel.fromJson(Map<String, dynamic>.from(j))).toList();
+      } catch (_) {
+        final cached = CacheManager.get(cacheKey);
+        if (cached != null && cached['data'] != null) {
+          final List data = cached['data'];
+          return data.map((j) => ImmobilierModel.fromJson(Map<String, dynamic>.from(j))).toList();
+        }
+        return _immobilierDemo;
+      }
+    },
+  );
 });
 
 final _immobilierDemo = [
@@ -90,22 +103,28 @@ final _immobilierDemo = [
 
 // ─── ARTISANS ────────────────────────────────────────────────────────────────
 
-final artisansProvider = FutureProvider<List<ArtisanModel>>((ref) async {
+final artisansProvider = StreamProvider<List<ArtisanModel>>((ref) {
   const String cacheKey = 'artisans_list';
-  try {
-    final dio = ApiClient.getInstance();
-    final response = await dio.get('/artisans');
-    final List data = response.data['data'];
-    await CacheManager.save(cacheKey, response.data);
-    return data.map((j) => ArtisanModel.fromJson(Map<String, dynamic>.from(j))).toList();
-  } catch (_) {
-    final cached = CacheManager.get(cacheKey);
-    if (cached != null && cached['data'] != null) {
-      final List data = cached['data'];
-      return data.map((j) => ArtisanModel.fromJson(Map<String, dynamic>.from(j))).toList();
-    }
-    return _artisansDemo;
-  }
+  final dio = ApiClient.getInstance();
+  return listOfflineFirst<ArtisanModel>(
+    cacheKey: cacheKey,
+    fromJson: ArtisanModel.fromJson,
+    fetch: () async {
+      try {
+        final response = await dio.get('/artisans');
+        final List data = response.data['data'];
+        await CacheManager.save(cacheKey, response.data);
+        return data.map((j) => ArtisanModel.fromJson(Map<String, dynamic>.from(j))).toList();
+      } catch (_) {
+        final cached = CacheManager.get(cacheKey);
+        if (cached != null && cached['data'] != null) {
+          final List data = cached['data'];
+          return data.map((j) => ArtisanModel.fromJson(Map<String, dynamic>.from(j))).toList();
+        }
+        return _artisansDemo;
+      }
+    },
+  );
 });
 
 final artisansParMetierProvider = FutureProvider.family<List<ArtisanModel>, String>((ref, metier) async {
@@ -151,22 +170,28 @@ final _artisansDemo = [
 
 // ─── URGENCES ────────────────────────────────────────────────────────────────
 
-final urgencesProvider = FutureProvider<List<UrgenceModel>>((ref) async {
+final urgencesProvider = StreamProvider<List<UrgenceModel>>((ref) {
   const String cacheKey = 'urgences_list';
-  try {
-    final dio = ApiClient.getInstance();
-    final response = await dio.get('/urgences');
-    final List data = response.data['data'];
-    await CacheManager.save(cacheKey, response.data);
-    return data.map((j) => UrgenceModel.fromJson(Map<String, dynamic>.from(j))).toList();
-  } catch (_) {
-    final cached = CacheManager.get(cacheKey);
-    if (cached != null && cached['data'] != null) {
-      final List data = cached['data'];
-      return data.map((j) => UrgenceModel.fromJson(Map<String, dynamic>.from(j))).toList();
-    }
-    return _urgencesDemo;
-  }
+  final dio = ApiClient.getInstance();
+  return listOfflineFirst<UrgenceModel>(
+    cacheKey: cacheKey,
+    fromJson: UrgenceModel.fromJson,
+    fetch: () async {
+      try {
+        final response = await dio.get('/urgences');
+        final List data = response.data['data'];
+        await CacheManager.save(cacheKey, response.data);
+        return data.map((j) => UrgenceModel.fromJson(Map<String, dynamic>.from(j))).toList();
+      } catch (_) {
+        final cached = CacheManager.get(cacheKey);
+        if (cached != null && cached['data'] != null) {
+          final List data = cached['data'];
+          return data.map((j) => UrgenceModel.fromJson(Map<String, dynamic>.from(j))).toList();
+        }
+        return _urgencesDemo;
+      }
+    },
+  );
 });
 
 final _urgencesDemo = [
@@ -198,22 +223,28 @@ final _urgencesDemo = [
 
 // ─── ACTUALITÉS ──────────────────────────────────────────────────────────────
 
-final actualitesProvider = FutureProvider<List<ActualiteModel>>((ref) async {
+final actualitesProvider = StreamProvider<List<ActualiteModel>>((ref) {
   const String cacheKey = 'actualites_list';
-  try {
-    final dio = ApiClient.getInstance();
-    final response = await dio.get('/actualites');
-    final List data = response.data['data'];
-    await CacheManager.save(cacheKey, response.data);
-    return data.map((j) => ActualiteModel.fromJson(Map<String, dynamic>.from(j))).toList();
-  } catch (_) {
-    final cached = CacheManager.get(cacheKey);
-    if (cached != null && cached['data'] != null) {
-      final List data = cached['data'];
-      return data.map((j) => ActualiteModel.fromJson(Map<String, dynamic>.from(j))).toList();
-    }
-    return _actualitesDemo;
-  }
+  final dio = ApiClient.getInstance();
+  return listOfflineFirst<ActualiteModel>(
+    cacheKey: cacheKey,
+    fromJson: ActualiteModel.fromJson,
+    fetch: () async {
+      try {
+        final response = await dio.get('/actualites');
+        final List data = response.data['data'];
+        await CacheManager.save(cacheKey, response.data);
+        return data.map((j) => ActualiteModel.fromJson(Map<String, dynamic>.from(j))).toList();
+      } catch (_) {
+        final cached = CacheManager.get(cacheKey);
+        if (cached != null && cached['data'] != null) {
+          final List data = cached['data'];
+          return data.map((j) => ActualiteModel.fromJson(Map<String, dynamic>.from(j))).toList();
+        }
+        return _actualitesDemo;
+      }
+    },
+  );
 });
 
 final _actualitesDemo = [

@@ -5,6 +5,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/services/contact_service.dart';
 import '../../providers/modules_provider.dart';
 import '../../widgets/action_button.dart';
+import '../../widgets/etat_widgets.dart';
 import '../../widgets/photo_gallery.dart';
 import '../../widgets/avis_section.dart';
 
@@ -21,7 +22,7 @@ class ArtisanDetailScreen extends ConsumerWidget {
       loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (e, _) => Scaffold(
         appBar: AppBar(title: const Text('Détail'), backgroundColor: _couleur, foregroundColor: AppColors.white),
-        body: Center(child: Text(e.toString())),
+        body: EtatErreur(onRetry: () => ref.invalidate(artisansProvider)),
       ),
       data: (liste) {
         final idx = liste.indexWhere((e) => e.id == id);
@@ -29,6 +30,7 @@ class ArtisanDetailScreen extends ConsumerWidget {
         final a = liste[idx];
         final aDesPhotos = a.photoUrl != null || a.photos.isNotEmpty;
         return Scaffold(
+          backgroundColor: AppColors.white,
           body: CustomScrollView(
             slivers: [
               SliverAppBar(

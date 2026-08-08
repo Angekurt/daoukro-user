@@ -1,3 +1,5 @@
+import '../../core/utils/parsing.dart';
+
 class ServicePublicModel {
   final int id;
   final int villeId;
@@ -45,12 +47,8 @@ class ServicePublicModel {
       adresse: json['adresse'],
       telephone: json['telephone'],
       email: json['email'],
-      latitude: json['latitude'] != null
-          ? double.parse(json['latitude'].toString())
-          : null,
-      longitude: json['longitude'] != null
-          ? double.parse(json['longitude'].toString())
-          : null,
+      latitude: parseCoord(json['latitude']),
+      longitude: parseCoord(json['longitude']),
       horaires: json['horaires'],
       photo: json['photo'],
       photoUrl: json['photo_url'],
