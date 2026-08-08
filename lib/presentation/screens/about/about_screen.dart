@@ -6,6 +6,8 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/services/contact_service.dart';
 import '../../../core/services/settings_service.dart';
 import '../../providers/theme_provider.dart';
+import '../../providers/auth_provider.dart';
+import '../../../data/models/user_model.dart';
 import '../../widgets/action_button.dart';
 
 class AboutScreen extends ConsumerWidget {
@@ -65,6 +67,16 @@ class AboutScreen extends ConsumerWidget {
             ]),
           ),
           const SizedBox(height: 28),
+
+          // Mon compte (connexion Google optionnelle)
+          _Section(
+            titre: 'Mon compte',
+            card: card,
+            textPrimary: textPrimary,
+            textSec: textSec,
+            child: const _CompteTile(),
+          ),
+          const SizedBox(height: 16),
 
           // Apparence (clair / sombre / système)
           _Section(
@@ -197,6 +209,105 @@ class AboutScreen extends ConsumerWidget {
           const SizedBox(height: 40),
         ],
       ),
+    );
+  }
+}
+
+/// Section "Mon compte" — connexion Google optionnelle. Ne bloque jamais la
+/// navigation : seules certaines actions (ex. déposer un avis) la déclenchent.
+class _CompteTile extends ConsumerWidget {
+  const _CompteTile();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final authAsync = ref.watch(authProvider);
+
+    return authAsync.when(
+      loading: () => const Padding(
+        padding: EdgeInsets.all(16),
+        child: Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))),
+      ),
+      error: (_, _) => _BoutonConnexionGoogle(isDark: isDark),
+      data: (user) => user == null
+          ? _BoutonConnexionGoogle(isDark: isDark)
+          : _ProfilConnecte(user: user, isDark: isDark),
+    );
+  }
+}
+
+class _BoutonConnexionGoogle extends ConsumerWidget {
+  final bool isDark;
+  const _BoutonConnexionGoogle({required this.isDark});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return InkWell(
+      onTap: () async {
+        await ref.read(authProvider.notifier).connecterAvecGoogle();
+        final state = ref.read(authProvider);
+        if (state.hasError && context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.error.toString()), backgroundColor: AppColors.danger),
+          );
+        }
+      },
+      borderRadius: BorderRadius.circular(14),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: Row(children: [
+          Container(
+            width: 38, height: 38,
+            decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
+            child: const Icon(Icons.login_rounded, color: AppColors.primary, size: 20),
+          ),
+          const SizedBox(width: 14),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('Se connecter avec Google',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: isDark ? AppColors.white : AppColors.textDark)),
+            const SizedBox(height: 2),
+            Text('Pour publier des avis en votre nom',
+                style: TextStyle(fontSize: 11, color: isDark ? AppColors.white54 : AppColors.textGrey)),
+          ])),
+          Icon(Icons.chevron_right_rounded, color: isDark ? AppColors.white24 : AppColors.border, size: 20),
+        ]),
+      ),
+    );
+  }
+}
+
+class _ProfilConnecte extends ConsumerWidget {
+  final UserModel user;
+  final bool isDark;
+  const _ProfilConnecte({required this.user, required this.isDark});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final textPrimary = isDark ? AppColors.white : AppColors.textDark;
+    final textSec = isDark ? AppColors.white54 : AppColors.textGrey;
+    return Padding(
+      padding: const EdgeInsets.all(14),
+      child: Row(children: [
+        CircleAvatar(
+          radius: 22,
+          backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+          backgroundImage: user.avatarUrl != null ? NetworkImage(user.avatarUrl!) : null,
+          child: user.avatarUrl == null
+              ? Text(user.nom.isNotEmpty ? user.nom[0].toUpperCase() : '?',
+                  style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold))
+              : null,
+        ),
+        const SizedBox(width: 14),
+        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(user.nom, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: textPrimary)),
+          if (user.email != null) Text(user.email!, style: TextStyle(fontSize: 12, color: textSec)),
+        ])),
+        TextButton(
+          onPressed: () => ref.read(authProvider.notifier).deconnecter(),
+          style: TextButton.styleFrom(foregroundColor: AppColors.danger),
+          child: const Text('Déconnexion'),
+        ),
+      ]),
     );
   }
 }

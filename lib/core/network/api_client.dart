@@ -9,6 +9,17 @@ class ApiClient {
     return _instance!;
   }
 
+  /// Attache (ou retire, si null) le token Sanctum de l'utilisateur connecté
+  /// à toutes les requêtes API suivantes.
+  static void setAuthToken(String? token) {
+    final dio = getInstance();
+    if (token == null) {
+      dio.options.headers.remove('Authorization');
+    } else {
+      dio.options.headers['Authorization'] = 'Bearer $token';
+    }
+  }
+
   static Dio _createDio() {
     final dio = Dio(
       BaseOptions(

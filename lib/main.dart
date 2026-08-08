@@ -8,6 +8,7 @@ import 'core/utils/cache_manager.dart';
 import 'core/services/notification_service.dart';
 import 'core/services/settings_service.dart';
 import 'presentation/providers/theme_provider.dart';
+import 'presentation/providers/auth_provider.dart';
 import 'presentation/widgets/offline_banner.dart';
 import 'router/app_router.dart';
 
@@ -35,6 +36,9 @@ void main() async {
 
   final container = ProviderContainer();
   await container.read(themeModeProvider.notifier).init();
+  // Restaure la session citoyenne (token Sanctum) si un compte est déjà
+  // connecté, avant que le premier écran ne fasse ses appels API.
+  await container.read(authProvider.future);
 
   runApp(
     UncontrolledProviderScope(

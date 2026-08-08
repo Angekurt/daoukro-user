@@ -4,6 +4,8 @@ import 'package:intl/intl.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../core/theme/app_colors.dart';
 import '../providers/avis_provider.dart';
+import '../providers/auth_provider.dart';
+import '../../data/models/user_model.dart';
 import 'etat_widgets.dart';
 
 /// Section "Avis" pour une fiche artisan ou hébergement : liste des avis
@@ -101,7 +103,19 @@ class AvisSection extends ConsumerWidget {
     );
   }
 
-  void _ouvrirFormulaire(BuildContext context, WidgetRef ref, ({String type, int id}) params) {
+  Future<void> _ouvrirFormulaire(BuildContext context, WidgetRef ref, ({String type, int id}) params) async {
+    var utilisateur = ref.read(authProvider).value;
+    if (utilisateur == null) {
+      final connecte = await showModalBottomSheet<bool>(
+        context: context,
+        backgroundColor: AppColors.transparent,
+        builder: (_) => const _DemandeConnexion(),
+      );
+      if (connecte != true || !context.mounted) return;
+      utilisateur = ref.read(authProvider).value;
+      if (utilisateur == null) return;
+    }
+    if (!context.mounted) return;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -110,8 +124,79 @@ class AvisSection extends ConsumerWidget {
         entityType: entityType,
         entityId: entityId,
         nomEntite: nomEntite,
+        utilisateur: utilisateur!,
         onEnvoye: () => ref.invalidate(avisProvider(params)),
       ),
+    );
+  }
+}
+
+/// Invite de connexion affichée uniquement au moment de déposer un avis —
+/// jamais au lancement de l'app.
+class _DemandeConnexion extends ConsumerStatefulWidget {
+  const _DemandeConnexion();
+  @override
+  ConsumerState<_DemandeConnexion> createState() => _DemandeConnexionState();
+}
+
+class _DemandeConnexionState extends ConsumerState<_DemandeConnexion> {
+  bool _enCours = false;
+
+  Future<void> _connecter() async {
+    setState(() => _enCours = true);
+    await ref.read(authProvider.notifier).connecterAvecGoogle();
+    if (!mounted) return;
+    setState(() => _enCours = false);
+    if (ref.read(authProvider).value != null) {
+      Navigator.of(context).pop(true);
+      return;
+    }
+    final erreur = ref.read(authProvider).error;
+    if (erreur != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(erreur.toString()), backgroundColor: AppColors.danger),
+      );
+    }
+    // Sinon : fenêtre Google simplement annulée par l'utilisateur — pas d'erreur à afficher.
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.cardDark : AppColors.white,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+        Icon(PhosphorIconsRegular.userCircle, size: 40, color: AppColors.primary),
+        const SizedBox(height: 12),
+        Text('Connectez-vous pour donner votre avis',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: isDark ? AppColors.white : AppColors.textDark)),
+        const SizedBox(height: 6),
+        Text("Ça évite les faux avis et associe automatiquement votre nom — une seule fois.",
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 12, color: isDark ? AppColors.white54 : AppColors.textGrey)),
+        const SizedBox(height: 20),
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: _enCours ? null : _connecter,
+            icon: _enCours
+                ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.white))
+                : const Icon(Icons.login_rounded),
+            label: Text(_enCours ? 'Connexion...' : 'Continuer avec Google'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: AppColors.white,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+            ),
+          ),
+        ),
+      ]),
     );
   }
 }
@@ -120,12 +205,14 @@ class _FormulaireAvis extends ConsumerStatefulWidget {
   final String entityType;
   final int entityId;
   final String nomEntite;
+  final UserModel utilisateur;
   final VoidCallback onEnvoye;
 
   const _FormulaireAvis({
     required this.entityType,
     required this.entityId,
     required this.nomEntite,
+    required this.utilisateur,
     required this.onEnvoye,
   });
 
@@ -134,22 +221,20 @@ class _FormulaireAvis extends ConsumerStatefulWidget {
 }
 
 class _FormulaireAvisState extends ConsumerState<_FormulaireAvis> {
-  final _nomController = TextEditingController();
   final _commentaireController = TextEditingController();
   int _note = 0;
   bool _envoiEnCours = false;
 
   @override
   void dispose() {
-    _nomController.dispose();
     _commentaireController.dispose();
     super.dispose();
   }
 
   Future<void> _envoyer() async {
-    if (_note == 0 || _nomController.text.trim().isEmpty) {
+    if (_note == 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Indiquez votre nom et une note.'), backgroundColor: AppColors.danger),
+        const SnackBar(content: Text('Choisissez une note.'), backgroundColor: AppColors.danger),
       );
       return;
     }
@@ -159,7 +244,7 @@ class _FormulaireAvisState extends ConsumerState<_FormulaireAvis> {
       final message = await ref.read(avisRepositoryProvider).envoyerAvis(
             widget.entityType,
             widget.entityId,
-            nom: _nomController.text,
+            nom: widget.utilisateur.nom,
             note: _note,
             commentaire: _commentaireController.text,
           );
@@ -225,10 +310,12 @@ class _FormulaireAvisState extends ConsumerState<_FormulaireAvis> {
               ),
             ),
             const SizedBox(height: 8),
-            TextField(
-              controller: _nomController,
-              decoration: const InputDecoration(labelText: 'Votre nom'),
-            ),
+            Row(children: [
+              Icon(Icons.person_outline, size: 16, color: isDark ? AppColors.white54 : AppColors.textGrey),
+              const SizedBox(width: 6),
+              Text('Publié en tant que ${widget.utilisateur.nom}',
+                  style: TextStyle(fontSize: 12, color: isDark ? AppColors.white54 : AppColors.textGrey)),
+            ]),
             const SizedBox(height: 12),
             TextField(
               controller: _commentaireController,
