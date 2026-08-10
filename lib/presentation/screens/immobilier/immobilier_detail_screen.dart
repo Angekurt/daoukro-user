@@ -7,6 +7,7 @@ import '../../../core/widgets/support_fab.dart';
 import '../../providers/modules_provider.dart';
 import '../../widgets/etat_widgets.dart';
 import '../../widgets/photo_gallery.dart';
+import '../../widgets/avis_section.dart';
 
 class ImmobilierDetailScreen extends ConsumerWidget {
   final int id;
@@ -133,6 +134,12 @@ class ImmobilierDetailScreen extends ConsumerWidget {
                         onItineraire: (bien.latitude != null && bien.longitude != null)
                             ? () => context.push('/itineraire', extra: {'lat': bien.latitude!, 'lng': bien.longitude!, 'nom': bien.titre})
                             : null,
+                      ),
+                      const SizedBox(height: 28),
+                      AvisSection(
+                        entityType: 'immobilier',
+                        entityId: bien.id,
+                        nomEntite: bien.titre,
                       ),
                     ],
                   ),

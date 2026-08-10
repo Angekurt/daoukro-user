@@ -6,6 +6,7 @@ import '../../providers/annonce_provider.dart';
 import '../../widgets/action_button.dart';
 import '../../widgets/etat_widgets.dart';
 import '../../widgets/photo_gallery.dart';
+import '../../widgets/avis_section.dart';
 import '../../../data/models/annonce_model.dart';
 
 class AnnoncDetailScreen extends ConsumerWidget {
@@ -124,6 +125,12 @@ class AnnoncDetailScreen extends ConsumerWidget {
                           onTap: () => ContactService.web(context, a.lien!),
                         ),
                       ],
+                      const SizedBox(height: 28),
+                      AvisSection(
+                        entityType: 'annonce',
+                        entityId: a.id,
+                        nomEntite: a.titre,
+                      ),
                     ],
                   ),
                 ),
