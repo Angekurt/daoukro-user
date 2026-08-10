@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:collection/collection.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/services/contact_service.dart';
 import '../../../core/widgets/support_fab.dart';
@@ -87,20 +88,53 @@ class PharmacieDetailScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (estDeGarde) ...[
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: AppColors.success,
-                            borderRadius: BorderRadius.circular(20),
+                        // Période de garde affichée immédiatement à côté du badge
+                        gardesAsync.maybeWhen(
+                          data: (gardes) {
+                            final garde = gardes.firstWhereOrNull((g) => g.pharmacie.id == pharmacie.id);
+                            if (garde == null) return const SizedBox.shrink();
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.success,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: const Row(mainAxisSize: MainAxisSize.min, children: [
+                                      Icon(Icons.circle, size: 6, color: AppColors.white),
+                                      SizedBox(width: 6),
+                                      Text('DE GARDE', style: TextStyle(color: AppColors.white, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                                    ]),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    'Du ${DateFormat('dd/MM').format(garde.dateDebut)} au ${DateFormat('dd/MM').format(garde.dateFin)}',
+                                    style: const TextStyle(fontSize: 12, color: AppColors.success, fontWeight: FontWeight.w600),
+                                  ),
+                                ]),
+                                const SizedBox(height: 14),
+                              ],
+                            );
+                          },
+                          orElse: () => Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(color: AppColors.success, borderRadius: BorderRadius.circular(20)),
+                                child: const Row(mainAxisSize: MainAxisSize.min, children: [
+                                  Icon(Icons.circle, size: 6, color: AppColors.white),
+                                  SizedBox(width: 6),
+                                  Text('DE GARDE', style: TextStyle(color: AppColors.white, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                                ]),
+                              ),
+                              const SizedBox(height: 14),
+                            ],
                           ),
-                          child: const Row(mainAxisSize: MainAxisSize.min, children: [
-                            Icon(Icons.circle, size: 6, color: AppColors.white),
-                            SizedBox(width: 6),
-                            Text('DE GARDE',
-                                style: TextStyle(color: AppColors.white, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
-                          ]),
                         ),
-                        const SizedBox(height: 14),
                       ],
                       _InfoTile(icone: Icons.location_on, label: 'Adresse', valeur: pharmacie.adresse),
                       if (pharmacie.telephone != null)

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/network/api_client.dart';
 import '../../../core/services/contact_service.dart';
 import '../../providers/annonce_provider.dart';
 import '../../widgets/action_button.dart';
@@ -126,6 +127,10 @@ class AnnoncDetailScreen extends ConsumerWidget {
                         ),
                       ],
                       const SizedBox(height: 28),
+                      // Bouton Intéressé pour les offres d'emploi
+                      if (a.type == TypeAnnonce.emploi)
+                        _BoutonInteresse(annonce: a),
+                      const SizedBox(height: 28),
                       AvisSection(
                         entityType: 'annonce',
                         entityId: a.id,
@@ -188,4 +193,92 @@ class _BoutonAction extends StatelessWidget {
       ),
     ),
   );
+}
+
+// ── Bouton Intéressé (offres d'emploi uniquement) ─────────────────────────────
+
+class _BoutonInteresse extends ConsumerStatefulWidget {
+  final AnnonceModel annonce;
+  const _BoutonInteresse({required this.annonce});
+
+  @override
+  ConsumerState<_BoutonInteresse> createState() => _BoutonInteresseState();
+}
+
+class _BoutonInteresseState extends ConsumerState<_BoutonInteresse> {
+  late bool _interesse;
+  late int _nb;
+  bool _enCours = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _interesse = widget.annonce.dejaInteresse;
+    _nb        = widget.annonce.nbInterets;
+  }
+
+  Future<void> _toggle() async {
+    setState(() => _enCours = true);
+    try {
+      final dio = ApiClient.getInstance();
+      if (_interesse) {
+        final res = await dio.delete('/annonces/${widget.annonce.id}/interet');
+        setState(() {
+          _interesse = false;
+          _nb = res.data['total_interets'] ?? (_nb > 0 ? _nb - 1 : 0);
+        });
+      } else {
+        final res = await dio.post('/annonces/${widget.annonce.id}/interet');
+        setState(() {
+          _interesse = true;
+          _nb = res.data['total_interets'] ?? (_nb + 1);
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString().contains('401')
+                ? 'Connectez-vous pour marquer votre intérêt.'
+                : "Impossible d'enregistrer votre intérêt."),
+            backgroundColor: AppColors.danger,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _enCours = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: _enCours ? null : _toggle,
+            icon: _enCours
+                ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.white))
+                : Icon(_interesse ? Icons.check_circle_rounded : Icons.thumb_up_outlined),
+            label: Text(_interesse ? 'Intérêt enregistré' : 'Je suis intéressé(e)'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _interesse ? AppColors.success : AppColors.emploi,
+              foregroundColor: AppColors.white,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
+        ),
+        if (_nb > 0) ...[
+          const SizedBox(height: 8),
+          Text(
+            '$_nb personne${_nb > 1 ? 's' : ''} ${_nb > 1 ? 'sont intéressées' : 'est intéressée'}',
+            style: const TextStyle(fontSize: 13, color: AppColors.textGrey),
+          ),
+        ],
+      ],
+    );
+  }
 }

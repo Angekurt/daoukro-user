@@ -5,7 +5,7 @@ class AnnonceModel {
   final String titre;
   final String description;
   final TypeAnnonce type;
-  final String categorie; // pour les listes
+  final String categorie;
   final String? photo;
   final String? photoUrl;
   final List<String> photos;
@@ -19,6 +19,8 @@ class AnnonceModel {
   final String? createdAt;
   final String? lien;
   final bool isActive;
+  final int nbInterets;       // nombre de personnes intéressées (emploi)
+  final bool dejaInteresse;   // si le citoyen connecté est déjà intéressé
 
   AnnonceModel({
     required this.id,
@@ -39,7 +41,21 @@ class AnnonceModel {
     this.createdAt,
     this.lien,
     required this.isActive,
+    this.nbInterets = 0,
+    this.dejaInteresse = false,
   });
+
+  AnnonceModel copyWith({ int? nbInterets, bool? dejaInteresse }) {
+    return AnnonceModel(
+      id: id, titre: titre, description: description, type: type,
+      categorie: categorie, photo: photo, photoUrl: photoUrl, photos: photos,
+      lieu: lieu, dateDebut: dateDebut, dateFin: dateFin,
+      contact: contact, auteur: auteur, telephone: telephone,
+      email: email, createdAt: createdAt, lien: lien, isActive: isActive,
+      nbInterets: nbInterets ?? this.nbInterets,
+      dejaInteresse: dejaInteresse ?? this.dejaInteresse,
+    );
+  }
 
   factory AnnonceModel.fromJson(Map<String, dynamic> json) {
     return AnnonceModel(
@@ -64,6 +80,8 @@ class AnnonceModel {
       createdAt: json['created_at'],
       lien: json['lien'],
       isActive: json['is_active'] == 1 || json['is_active'] == true,
+      nbInterets: json['nb_interets'] ?? 0,
+      dejaInteresse: json['deja_interesse'] ?? false,
     );
   }
 }
