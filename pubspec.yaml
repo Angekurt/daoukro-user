@@ -127,10 +127,8 @@ flutter:
   # see https://flutter.dev/to/font-from-package
 
 dependency_overrides:
-  # phosphor_flutter 2.1.0 (dernière version publiée) ne compile pas sur les
-  # SDK Flutter récents car IconData est devenue une classe `final`
-  # (https://github.com/phosphor-icons/flutter/pull/63, pas encore mergée/publiée).
-  # À retirer dès qu'une version corrigée sort sur pub.dev.
+  # phosphor_flutter 2.1.0 ne compile pas sur Flutter récent (IconData final)
+  # Fork corrigé en attendant la version officielle
   phosphor_flutter:
     git:
       url: https://github.com/MahMoos/flutter.git

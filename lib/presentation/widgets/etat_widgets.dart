@@ -35,7 +35,10 @@ class EtatVide extends StatelessWidget {
           const SizedBox(height: 16),
           Text(titre,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: couleurTitre)),
+              style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: couleurTitre)),
           if (message != null) ...[
             const SizedBox(height: 6),
             Text(message!,
@@ -82,18 +85,23 @@ class EtatErreur extends StatelessWidget {
         if (donneesEnCache)
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             color: const Color(0xFFFFF8E1),
-            child: Row(children: const [
-              Icon(Icons.history_rounded, size: 16, color: Color(0xFFF59E0B)),
-              SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  'Données affichées depuis le cache local',
-                  style: TextStyle(fontSize: 12, color: Color(0xFF78350F)),
+            child: Row(
+              children: const [
+                Icon(Icons.history_rounded,
+                    size: 16, color: Color(0xFFF59E0B)),
+                SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Données affichées depuis le cache local',
+                    style:
+                        TextStyle(fontSize: 12, color: Color(0xFF78350F)),
+                  ),
                 ),
-              ),
-            ]),
+              ],
+            ),
           ),
         EtatVide(
           icone: PhosphorIconsRegular.wifiSlash,
@@ -136,8 +144,10 @@ class ChargementSkeleton extends StatelessWidget {
           (i) => Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: Shimmer.fromColors(
-              baseColor: isDark ? AppColors.cardDark : AppColors.shimmerBase,
-              highlightColor: isDark ? AppColors.white12 : AppColors.shimmerHigh,
+              baseColor:
+                  isDark ? AppColors.cardDark : AppColors.shimmerBase,
+              highlightColor:
+                  isDark ? AppColors.white12 : AppColors.shimmerHigh,
               child: Container(
                 height: height,
                 decoration: BoxDecoration(
