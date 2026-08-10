@@ -60,20 +60,53 @@ class EtatVide extends StatelessWidget {
 }
 
 /// État d'erreur réseau — icône + message + bouton Réessayer systématique.
+/// Affiche aussi les données en cache si disponibles.
 class EtatErreur extends StatelessWidget {
   final String? message;
   final VoidCallback onRetry;
+  final bool donneesEnCache;
 
-  const EtatErreur({super.key, this.message, required this.onRetry});
+  const EtatErreur({
+    super.key,
+    this.message,
+    required this.onRetry,
+    this.donneesEnCache = false,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return EtatVide(
-      icone: PhosphorIconsRegular.wifiSlash,
-      titre: 'Impossible de charger le contenu',
-      message: message ?? 'Vérifiez votre connexion internet.',
-      actionLabel: 'Réessayer',
-      onAction: onRetry,
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (donneesEnCache)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            color: const Color(0xFFFFF8E1),
+            child: Row(children: const [
+              Icon(Icons.history_rounded, size: 16, color: Color(0xFFF59E0B)),
+              SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Données affichées depuis le cache local',
+                  style: TextStyle(fontSize: 12, color: Color(0xFF78350F)),
+                ),
+              ),
+            ]),
+          ),
+        EtatVide(
+          icone: PhosphorIconsRegular.wifiSlash,
+          titre: donneesEnCache
+              ? 'Connexion indisponible'
+              : 'Impossible de charger le contenu',
+          message: donneesEnCache
+              ? 'Les données affichées proviennent du cache local.\nElles se mettront à jour automatiquement quand internet sera disponible.'
+              : (message ?? 'Vérifiez votre connexion internet.'),
+          actionLabel: 'Réessayer',
+          onAction: onRetry,
+        ),
+      ],
     );
   }
 }

@@ -7,6 +7,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/services/contact_service.dart';
 import '../../../core/services/notification_service.dart';
 import '../../providers/annonce_provider.dart';
+import '../../providers/connexion_provider.dart';
 import '../../providers/modules_provider.dart';
 import '../../widgets/meteo_widget.dart';
 import '../../../data/models/annonce_model.dart';
@@ -89,6 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: 16),
+                _BandeauConnexion(),   // bandeau cache offline
                 MeteoWidget(),
                 _AccesRapide(),
                 _BoutonSignalement(),
