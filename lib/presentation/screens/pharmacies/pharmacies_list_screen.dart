@@ -5,7 +5,6 @@ import 'package:shimmer/shimmer.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/services/contact_service.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
-import '../../../core/widgets/support_fab.dart';
 import '../../providers/pharmacie_provider.dart';
 import '../../../data/models/pharmacie_model.dart';
 import '../../widgets/etat_widgets.dart';
@@ -41,7 +40,6 @@ class _PharmaciesListScreenState extends ConsumerState<PharmaciesListScreen> {
     final pharmaciesAsync = ref.watch(pharmaciesProvider);
 
     return Scaffold(
-      floatingActionButton: const SupportFab(contexte: 'Liste des pharmacies'),
       appBar: AppBar(
         title: const Text('Pharmacies'),
         actions: [

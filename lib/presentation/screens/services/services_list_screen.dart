@@ -5,7 +5,6 @@ import 'package:shimmer/shimmer.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/services/contact_service.dart';
-import '../../../core/widgets/support_fab.dart';
 import '../../widgets/etat_widgets.dart';
 import '../../providers/service_public_provider.dart';
 import '../../providers/modules_provider.dart';
@@ -38,7 +37,6 @@ class _ServicesListScreenState extends ConsumerState<ServicesListScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: const SupportFab(contexte: 'Liste des services publics'),
       appBar: AppBar(
         title: const Text('Services & Annuaire'),
         backgroundColor: AppColors.primary,

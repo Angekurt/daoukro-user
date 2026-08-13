@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/widgets/support_fab.dart';
 import '../../providers/modules_provider.dart';
 import '../../widgets/action_button.dart';
 import '../../widgets/etat_widgets.dart';
 import '../../../data/models/urgence_actualite_model.dart';
+
+// Supprime les balises HTML (ex: <p>, </p>, <br>, etc.) d'une chaîne de caractères
+String _stripHtml(String texte) =>
+    texte.replaceAll(RegExp(r'<[^>]*>'), '').trim();
 
 class ActualitesListScreen extends ConsumerWidget {
   const ActualitesListScreen({super.key});
@@ -16,7 +19,6 @@ class ActualitesListScreen extends ConsumerWidget {
     final async = ref.watch(actualitesProvider);
 
     return Scaffold(
-      floatingActionButton: const SupportFab(contexte: 'Infos locales'),
       appBar: AppBar(
         title: const Text('Infos locales'),
         backgroundColor: AppColors.primary,
@@ -110,7 +112,7 @@ class _ActualiteCardState extends State<_ActualiteCard>
               Text(widget.actualite.titre,
                   style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textDark, height: 1.3)),
               const SizedBox(height: 6),
-              Text(widget.actualite.contenu,
+              Text(_stripHtml(widget.actualite.contenu),
                   style: const TextStyle(fontSize: 12, color: AppColors.textGrey, height: 1.5),
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis),

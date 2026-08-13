@@ -141,16 +141,6 @@ class AboutScreen extends ConsumerWidget {
             textSec: textSec,
             child: Column(children: [
               _ContactTile(
-                icone: Icons.support_agent_rounded,
-                label: 'Support WhatsApp',
-                valeur: ContactService.display(
-                    SettingsService.instance.supportWhatsapp ?? ContactService.supportPhoneFallback),
-                couleur: AppColors.whatsapp,
-                isDark: isDark,
-                onTap: () => ContactService.support(context, contexte: 'Page À propos'),
-              ),
-              Divider(height: 1, color: isDark ? AppColors.white12 : AppColors.surfaceAlt),
-              _ContactTile(
                 icone: Icons.email_outlined,
                 label: 'Email',
                 valeur: SettingsService.instance.supportEmail ?? 'contact@akdev.tech',
@@ -162,10 +152,10 @@ class AboutScreen extends ConsumerWidget {
               _ContactTile(
                 icone: Icons.language_rounded,
                 label: 'Site web',
-                valeur: 'www.daoukro-digital.akdev.tech',
+                valeur: 'www.daoukro.akdev.tech',
                 couleur: AppColors.primary,
                 isDark: isDark,
-                onTap: () => _ouvrir('https://www.daoukro-digital.akdev.tech'),
+                onTap: () => _ouvrir('https://www.daoukro.akdev.tech'),
               ),
             ]),
           ),

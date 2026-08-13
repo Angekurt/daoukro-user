@@ -172,10 +172,9 @@ class MainShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final surAccueil = GoRouterState.of(context).matchedLocation == '/';
     return Scaffold(
       body: child,
-      floatingActionButton: surAccueil ? null : const SupportFab(),
+      floatingActionButton: null,
       bottomNavigationBar: _BottomNav(
         currentIndex: _index(context),
         onTap: (i) {

@@ -10,6 +10,10 @@ import '../../widgets/photo_gallery.dart';
 import '../../widgets/avis_section.dart';
 import '../../../data/models/annonce_model.dart';
 
+// Supprime les balises HTML (ex: <p>, </p>, <br>, etc.) d'une chaîne
+String _stripHtml(String texte) =>
+    texte.replaceAll(RegExp(r'<[^>]*>'), '').trim();
+
 class AnnoncDetailScreen extends ConsumerWidget {
   final int id;
   const AnnoncDetailScreen({super.key, required this.id});
@@ -107,7 +111,7 @@ class AnnoncDetailScreen extends ConsumerWidget {
                       const SizedBox(height: 20),
                       const Text('Description', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textDark)),
                       const SizedBox(height: 8),
-                      Text(a.description, style: const TextStyle(fontSize: 14, color: AppColors.textGrey, height: 1.5)),
+                      Text(_stripHtml(a.description), style: const TextStyle(fontSize: 14, color: AppColors.textGrey, height: 1.5)),
                       const SizedBox(height: 28),
                       // Actions
                       if (a.telephone != null)

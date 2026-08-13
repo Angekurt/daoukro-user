@@ -5,11 +5,14 @@ import 'package:shimmer/shimmer.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/services/contact_service.dart';
-import '../../../core/widgets/support_fab.dart';
 import '../../providers/annonce_provider.dart';
 import '../../widgets/action_button.dart';
 import '../../widgets/etat_widgets.dart';
 import '../../../data/models/annonce_model.dart';
+
+// Supprime les balises HTML (ex: <p>, </p>, <br>, etc.) d'une chaîne
+String _stripHtml(String texte) =>
+    texte.replaceAll(RegExp(r'<[^>]*>'), '').trim();
 
 class AnnoncesListScreen extends ConsumerStatefulWidget {
   const AnnoncesListScreen({super.key});
@@ -33,7 +36,6 @@ class _AnnoncesListScreenState extends ConsumerState<AnnoncesListScreen> {
     final async = ref.watch(annoncesProvider);
 
     return Scaffold(
-      floatingActionButton: const SupportFab(contexte: 'Liste des annonces'),
       appBar: AppBar(
         title: const Text('Annonces & Événements'),
         backgroundColor: AppColors.annonce,
@@ -203,7 +205,7 @@ class _AnnonceCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(16),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(annonce.description,
+                Text(_stripHtml(annonce.description),
                     style: const TextStyle(fontSize: 13, color: AppColors.textGrey, height: 1.5),
                     maxLines: 3, overflow: TextOverflow.ellipsis),
                 const SizedBox(height: 10),
