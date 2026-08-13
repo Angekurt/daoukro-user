@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../core/services/analytics_service.dart';
-import '../core/widgets/support_fab.dart';
 import '../presentation/screens/splash/splash_screen.dart';
 import '../presentation/screens/onboarding/onboarding_screen.dart';
 import '../presentation/screens/about/about_screen.dart';

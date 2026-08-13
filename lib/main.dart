@@ -38,7 +38,14 @@ void main() async {
   await container.read(themeModeProvider.notifier).init();
   // Restaure la session citoyenne (token Sanctum) si un compte est déjà
   // connecté, avant que le premier écran ne fasse ses appels API.
-  await container.read(authProvider.future);
+  // Timeout de sécurité : FlutterSecureStorage peut se bloquer sur certains
+  // appareils Android (keystore corrompu, réinstallation, etc.).
+  // Si la lecture ne répond pas en 3 secondes, on démarre quand même
+  // en mode anonyme — l'utilisateur pourra se reconnecter depuis l'app.
+  await container.read(authProvider.future).timeout(
+    const Duration(seconds: 3),
+    onTimeout: () => null,
+  );
 
   runApp(
     UncontrolledProviderScope(
