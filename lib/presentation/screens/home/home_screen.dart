@@ -10,6 +10,7 @@ import '../../providers/annonce_provider.dart';
 import '../../providers/connexion_provider.dart';
 import '../../providers/modules_provider.dart';
 import '../../widgets/meteo_widget.dart';
+import '../../widgets/bandeau_cache.dart';
 import '../../../data/models/annonce_model.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -85,12 +86,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   onPressed: () => context.push('/about')),
             ],
           ),
-          const SliverToBoxAdapter(
+          SliverToBoxAdapter(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: 16),
-                _BandeauConnexion(),   // bandeau cache offline
+                const SizedBox(height: 16),
+                BandeauCacheCompact(),   // bandeau cache offline
                 MeteoWidget(),
                 _AccesRapide(),
                 _BoutonSignalement(),
@@ -99,7 +100,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 _SectionHebergements(),
                 _SectionArtisans(),
                 _BandeauUrgences(),
-                SizedBox(height: 24),
+                const SizedBox(height: 24),
               ],
             ),
           ),

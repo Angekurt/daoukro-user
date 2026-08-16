@@ -11,7 +11,7 @@ class BandeauCache extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final enLigne = ref.watch(connexionProvider);
+    final enLigne = ref.watch(connexionProvider).asData?.value ?? true;
     if (enLigne) return const SizedBox.shrink();
 
     return Container(
@@ -44,7 +44,7 @@ class BandeauCacheCompact extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final enLigne = ref.watch(connexionProvider);
+    final enLigne = ref.watch(connexionProvider).asData?.value ?? true;
     if (enLigne) return const SizedBox.shrink();
 
     return Container(
