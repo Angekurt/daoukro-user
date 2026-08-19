@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/constants/app_colors.dart';
 import '../providers/connexion_provider.dart';
 
 /// Bandeau affiché en haut des listes quand l'app utilise des données

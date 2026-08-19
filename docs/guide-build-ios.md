@@ -197,7 +197,7 @@ Pour une installation directe via lien, il faut créer un manifest XML :
 
 ### Structure sur le serveur
 ```
-https://daoukro.akdev.tech/ios/
+https://daoukro.akdev.ci/ios/
   ├── daoukro.ipa
   └── manifest.plist
 ```
@@ -218,7 +218,7 @@ https://daoukro.akdev.tech/ios/
           <key>kind</key>
           <string>software-package</string>
           <key>url</key>
-          <string>https://daoukro.akdev.tech/ios/daoukro.ipa</string>
+          <string>https://daoukro.akdev.ci/ios/daoukro.ipa</string>
         </dict>
       </array>
       <key>metadata</key>
@@ -240,7 +240,7 @@ https://daoukro.akdev.tech/ios/
 
 ### Lien d'installation pour les utilisateurs
 ```
-itms-services://?action=download-manifest&url=https://daoukro.akdev.tech/ios/manifest.plist
+itms-services://?action=download-manifest&url=https://daoukro.akdev.ci/ios/manifest.plist
 ```
 
 Ce lien, placé sur ta page de téléchargement, déclenche l'installation

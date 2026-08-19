@@ -61,6 +61,6 @@ Invoke-RestMethod -Uri "https://uploads.github.com/repos/Angekurt/daoukro-pro/re
 
 | Plateforme   | URL                                     |
 |--------------|-----------------------------------------|
-| PWA          | https://daoukro-pro.akdev.tech          |
-| Admin        | https://api-daoukro.akdev.tech/admin    |
-| Landing page | https://daoukro.akdev.tech              |
+| PWA          | https://daoukro-pro.akdev.ci            |
+| Admin        | https://api-daoukro.akdev.ci/admin      |
+| Landing page | https://daoukro.akdev.ci                |

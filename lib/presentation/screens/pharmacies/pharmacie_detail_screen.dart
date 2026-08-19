@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:collection/collection.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/services/contact_service.dart';
 import '../../../core/widgets/support_fab.dart';
@@ -91,7 +90,7 @@ class PharmacieDetailScreen extends ConsumerWidget {
                         // Période de garde affichée immédiatement à côté du badge
                         gardesAsync.maybeWhen(
                           data: (gardes) {
-                            final garde = gardes.firstWhereOrNull((g) => g.pharmacie.id == pharmacie.id);
+                            final garde = gardes.where((g) => g.pharmacie.id == pharmacie.id).firstOrNull;
                             if (garde == null) return const SizedBox.shrink();
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,

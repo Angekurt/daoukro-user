@@ -7,7 +7,6 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/services/contact_service.dart';
 import '../../../core/services/notification_service.dart';
 import '../../providers/annonce_provider.dart';
-import '../../providers/connexion_provider.dart';
 import '../../providers/modules_provider.dart';
 import '../../widgets/meteo_widget.dart';
 import '../../widgets/bandeau_cache.dart';

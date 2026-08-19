@@ -1,11 +1,11 @@
 {
-    "name": "daoukro_user",
-    "short_name": "daoukro_user",
+    "name": "Daoukro Digital",
+    "short_name": "Daoukro",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#FAFAF7",
     "theme_color": "#145217",
-    "description": "A new Flutter project.",
+    "description": "Daoukro Digital — pharmacies de garde, annonces, hebergements, artisans et services de la commune de Daoukro.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

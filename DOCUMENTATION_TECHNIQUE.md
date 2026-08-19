@@ -330,7 +330,7 @@ lib/core/constants/app_constants.dart
 ```dart
 static const String baseUrl = 'http://VOTRE_IP/daoukro-api/public/api/v1';
 // En production :
-static const String baseUrl = 'https://api.daoukro-digital.akdev.tech/api/v1';
+static const String baseUrl = 'https://api-daoukro.akdev.ci/api/v1';
 ```
 
 ### Ajouter une nouvelle page
@@ -613,7 +613,7 @@ php artisan key:generate
 # Éditer .env :
 APP_ENV=production
 APP_DEBUG=false
-APP_URL=https://api.daoukro-digital.akdev.tech
+APP_URL=https://api-daoukro.akdev.ci
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_DATABASE=daoukro_db
@@ -639,7 +639,7 @@ chmod -R 775 storage bootstrap/cache
 **6. Mettre à jour l'URL dans Flutter**
 ```dart
 // lib/core/constants/app_constants.dart
-static const String baseUrl = 'https://api.daoukro-digital.akdev.tech/api/v1';
+static const String baseUrl = 'https://api-daoukro.akdev.ci/api/v1';
 ```
 
 ---
