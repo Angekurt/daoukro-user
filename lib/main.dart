@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme/app_theme.dart';
 import 'core/utils/cache_manager.dart';
+import 'core/services/device_service.dart';
 import 'core/services/notification_service.dart';
 import 'core/services/settings_service.dart';
 import 'presentation/providers/theme_provider.dart';
@@ -15,6 +16,9 @@ import 'router/app_router.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await CacheManager.init();
+
+  // Enregistrement de l'appareil (anti-doublon matériel Android & PWA iOS)
+  await DeviceService.instance.init();
 
   // Firebase (Crashlytics, FCM) n'est configuré que pour Android/iOS —
   // pas de firebase_options.dart pour le web, et Crashlytics n'existe

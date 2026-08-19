@@ -6,6 +6,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:dio/dio.dart';
 import '../constants/app_constants.dart';
+import 'device_service.dart';
 
 // Handler de fond — doit être une fonction top-level. Tourne dans un isolate
 // séparé (app fermée ou en arrière-plan) : Hive n'y est pas déjà initialisé
@@ -124,12 +125,7 @@ class NotificationService {
 
   Future<void> _envoyerToken(String token) async {
     try {
-      final dio = Dio(BaseOptions(
-        baseUrl: AppConstants.baseUrl,
-        headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
-        connectTimeout: const Duration(seconds: 10),
-      ));
-      await dio.post('/fcm-token', data: {'token': token});
+      await DeviceService.instance.init(fcmToken: token);
     } catch (_) {}
   }
 
