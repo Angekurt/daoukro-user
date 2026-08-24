@@ -20,10 +20,20 @@ void main() async {
   // Enregistrement de l'appareil (anti-doublon matériel Android & PWA iOS)
   await DeviceService.instance.init();
 
-  // Firebase (Crashlytics, FCM) n'est configuré que pour Android/iOS —
-  // pas de firebase_options.dart pour le web, et Crashlytics n'existe
-  // pas sur cette plateforme.
-  if (!kIsWeb) {
+  if (kIsWeb) {
+    try {
+      await Firebase.initializeApp(
+        options: const FirebaseOptions(
+          apiKey: 'AIzaSyBNsqpE2QPgVzIV_5SjT-70w9aCDYUMMNk',
+          appId: '1:1078580649233:web:daoukro-digital',
+          messagingSenderId: '1078580649233',
+          projectId: 'daoukro-digital',
+          storageBucket: 'daoukro-digital.firebasestorage.app',
+        ),
+      );
+      await NotificationService.instance.init();
+    } catch (_) {}
+  } else {
     await Firebase.initializeApp();
 
     // Crashlytics — capturer toutes les erreurs Flutter en production

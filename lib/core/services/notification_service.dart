@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:dio/dio.dart';
 import '../constants/app_constants.dart';
 import 'device_service.dart';
 
@@ -22,8 +21,6 @@ class NotificationService {
   NotificationService._();
   static final instance = NotificationService._();
 
-  // Accès paresseux : ne construit FirebaseMessaging.instance que si on
-  // l'utilise réellement (jamais sur web, où Firebase n'est pas initialisé).
   FirebaseMessaging get _fcm => FirebaseMessaging.instance;
   final _local = FlutterLocalNotificationsPlugin();
 
@@ -32,10 +29,43 @@ class NotificationService {
   static const _boxNotifs = 'notifications_box';
 
   Future<void> init() async {
-    if (kIsWeb) return; // Firebase (et donc FCM) n'est pas configuré pour le web.
+    if (kIsWeb) {
+      try {
+        // Demande de permission pour le navigateur / iOS PWA
+        final settings = await _fcm.requestPermission(
+          alert: true,
+          badge: true,
+          sound: true,
+        );
+
+        if (settings.authorizationStatus == AuthorizationStatus.authorized ||
+            settings.authorizationStatus == AuthorizationStatus.provisional) {
+          final token = await _fcm.getToken(vapidKey: AppConstants.fcmVapidKey);
+          if (token != null) await _envoyerToken(token);
+          _fcm.onTokenRefresh.listen((t) => _envoyerToken(t));
+        }
+
+        if (!Hive.isBoxOpen(_boxNotifs)) {
+          await Hive.openBox(_boxNotifs);
+        }
+
+        FirebaseMessaging.onMessage.listen((msg) {
+          _sauvegarderNotification(msg);
+        });
+      } catch (e) {
+        debugPrint('FCM Web init error: $e');
+      }
+      return;
+    }
 
     // Demande permission notifications
     await _fcm.requestPermission(alert: true, badge: true, sound: true);
+
+    // Initialiser le plugin local
+    const initSettings = InitializationSettings(
+      android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+    );
+    await _local.initialize(initSettings);
 
     // Créer le canal Android (obligatoire Android 8+)
     const androidChannel = AndroidNotificationChannel(
@@ -44,15 +74,10 @@ class NotificationService {
       description: 'Alertes et actualités de Daoukro',
       importance: Importance.high,
     );
-    await _local
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(androidChannel);
-
-    // Initialiser le plugin local
-    const initSettings = InitializationSettings(
-      android: AndroidInitializationSettings('@mipmap/ic_launcher'),
-    );
-    await _local.initialize(initSettings);
+    final androidPlugin = _local
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+    await androidPlugin?.createNotificationChannel(androidChannel);
+    await androidPlugin?.requestNotificationsPermission();
 
     // Ouvrir boîte Hive pour stocker les notifs
     if (!Hive.isBoxOpen(_boxNotifs)) {

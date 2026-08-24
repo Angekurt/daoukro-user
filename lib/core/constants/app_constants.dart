@@ -13,4 +13,8 @@ class AppConstants {
   // dans le .env de daoukro-api pour que l'idToken soit vérifiable côté API.
   static const String googleServerClientId =
       '1078580649233-57u3qgnqu8bshuibemhsunraoqvkib09.apps.googleusercontent.com';
+
+  // Clé VAPID Web Push pour les notifications PWA (iOS Safari / Web)
+  static const String fcmVapidKey =
+      'BL19774od1s3ntVEZXXCs7HDPDt-anphspQnAtmGmS9HdtotyR3btdQLNhRQJx6zwR_zZ2iomIDZwpfBJxLwlAU';
 }
