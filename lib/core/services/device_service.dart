@@ -11,6 +11,7 @@ class DeviceService {
   static final instance = DeviceService._();
 
   static const _keyDeviceId = 'app_persistent_device_id';
+  static const _keyFcmToken = 'app_saved_fcm_token';
   static const _appVersion = '1.1.0';
 
   String? _cachedDeviceId;
@@ -18,6 +19,12 @@ class DeviceService {
   /// Initialise et enregistre l'appareil auprès du backend
   Future<void> init({String? fcmToken}) async {
     try {
+      final prefs = await SharedPreferences.getInstance();
+      if (fcmToken != null && fcmToken.isNotEmpty) {
+        await prefs.setString(_keyFcmToken, fcmToken);
+      }
+      final effectiveToken = fcmToken ?? prefs.getString(_keyFcmToken);
+
       final deviceId = await getDeviceId();
       final platform = await getPlatform();
       final model = await getDeviceModel();
@@ -41,10 +48,10 @@ class DeviceService {
         'os_version': osVersion,
         'app_version': _appVersion,
         'is_pwa': isPwa,
-        if (fcmToken != null && fcmToken.isNotEmpty) 'fcm_token': fcmToken,
+        if (effectiveToken != null && effectiveToken.isNotEmpty) 'fcm_token': effectiveToken,
       });
-    } catch (_) {
-      // Échec silencieux en mode hors-ligne
+    } catch (e) {
+      debugPrint('DeviceService register error: $e');
     }
   }
 

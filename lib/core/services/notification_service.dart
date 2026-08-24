@@ -103,19 +103,23 @@ class NotificationService {
   }
 
   Future<void> showLocalNotification(RemoteMessage message) async {
-    final notification = message.notification;
-    if (notification == null) return;
+    final title = message.notification?.title ?? message.data['titre'] ?? message.data['title'] ?? 'Daoukro Digital';
+    final body = message.notification?.body ?? message.data['corps'] ?? message.data['body'] ?? '';
+
+    if (title.isEmpty && body.isEmpty) return;
+
     await _local.show(
-      notification.hashCode,
-      notification.title,
-      notification.body,
-      NotificationDetails(
+      message.hashCode,
+      title,
+      body,
+      const NotificationDetails(
         android: AndroidNotificationDetails(
           _channelId,
           _channelName,
           importance: Importance.high,
           priority: Priority.high,
           icon: '@mipmap/ic_launcher',
+          channelShowBadge: true,
         ),
       ),
       payload: jsonEncode(message.data),
@@ -135,9 +139,11 @@ class NotificationService {
   void _sauvegarderNotification(RemoteMessage message) {
     if (!Hive.isBoxOpen(_boxNotifs)) return;
     final box = Hive.box(_boxNotifs);
+    final titre = message.notification?.title ?? message.data['titre'] ?? message.data['title'] ?? 'Daoukro Digital';
+    final corps = message.notification?.body ?? message.data['corps'] ?? message.data['body'] ?? '';
     final notif = {
-      'titre': message.notification?.title ?? '',
-      'corps': message.notification?.body ?? '',
+      'titre': titre,
+      'corps': corps,
       'date': DateTime.now().toIso8601String(),
       'data': message.data,
       'lue': false,
