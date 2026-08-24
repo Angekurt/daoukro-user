@@ -63,47 +63,13 @@ class DeviceService {
 
     final prefs = await SharedPreferences.getInstance();
     final savedId = prefs.getString(_keyDeviceId);
-
-    if (kIsWeb) {
-      if (savedId != null && savedId.isNotEmpty) {
-        _cachedDeviceId = savedId;
-        return savedId;
-      }
-      final newId = 'pwa_${DateTime.now().millisecondsSinceEpoch}_${Random().nextInt(9999999)}';
-      await prefs.setString(_keyDeviceId, newId);
-      _cachedDeviceId = newId;
-      return newId;
-    }
-
-    try {
-      final deviceInfo = DeviceInfoPlugin();
-      if (!kIsWeb && Platform.isAndroid) {
-        final androidInfo = await deviceInfo.androidInfo;
-        // androidInfo.id correspond à l'identifiant matériel unique de l'appareil
-        final hardwareId = androidInfo.id;
-        if (hardwareId.isNotEmpty) {
-          _cachedDeviceId = 'android_$hardwareId';
-          await prefs.setString(_keyDeviceId, _cachedDeviceId!);
-          return _cachedDeviceId!;
-        }
-      } else if (!kIsWeb && Platform.isIOS) {
-        final iosInfo = await deviceInfo.iosInfo;
-        final vendorId = iosInfo.identifierForVendor;
-        if (vendorId != null && vendorId.isNotEmpty) {
-          _cachedDeviceId = 'ios_$vendorId';
-          await prefs.setString(_keyDeviceId, _cachedDeviceId!);
-          return _cachedDeviceId!;
-        }
-      }
-    } catch (_) {}
-
-    // Fallback UUID persistant
     if (savedId != null && savedId.isNotEmpty) {
       _cachedDeviceId = savedId;
       return savedId;
     }
 
-    final newId = 'dev_${DateTime.now().millisecondsSinceEpoch}_${Random().nextInt(9999999)}';
+    final prefix = kIsWeb ? 'pwa' : (Platform.isAndroid ? 'android' : 'ios');
+    final newId = '${prefix}_${DateTime.now().millisecondsSinceEpoch}_${Random().nextInt(9999999)}';
     await prefs.setString(_keyDeviceId, newId);
     _cachedDeviceId = newId;
     return newId;
